@@ -14,7 +14,11 @@ export class Display {
         this.height = height;
         this.pixelSize = pixelSize;
         this.screenData = new Uint8Array(this.width * this.height);
-        this.canvasContext = canvas.getContext('2d');
+        const canvasContext = canvas.getContext('2d');
+        if(!canvasContext || !(canvasContext instanceof CanvasRenderingContext2D)) {
+          throw new Error('Failed to get 2D context!');
+        }
+        this.canvasContext = canvasContext;
     }
 
     public clear(): void {
