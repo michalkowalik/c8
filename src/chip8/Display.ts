@@ -23,6 +23,7 @@ export class Display {
 
     public clear(): void {
         this.screenData.fill(0);
+        this.render();
     }
 
     public setPixel(x: number, y: number, value: number): void {
@@ -39,7 +40,9 @@ export class Display {
 
     // render is the funny part
     public render(): void {
-        this.canvasContext.clearRect(0, 0, this.canvasContext.canvas.width, this.canvasContext.canvas.height);
+        this.canvasContext.fillStyle = 'black';
+        this.canvasContext.fillRect(0, 0, this.canvasContext.canvas.width, this.canvasContext.canvas.height);
+
         this.canvasContext.fillStyle = 'white';
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {

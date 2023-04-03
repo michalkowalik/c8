@@ -1,5 +1,5 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <p>Check me on <a href="https://github.com/michalkowalik" target="_blank" rel="noopener"> michalkowalik(at)github.com </a></p>
   </div>
 </template>
