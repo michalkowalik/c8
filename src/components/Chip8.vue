@@ -1,7 +1,7 @@
 <template>
     <div class="chip-8">
         <h1>CHIP-8</h1>
-        <p>Here goes nothing (so far)</p>
+        <p>Here goes nothing</p>
         <canvas ref="chipCanvas" width="512" height="256" style="border:1px solid #000000;">
                 </canvas> 
     </div>
