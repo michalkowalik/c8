@@ -33,6 +33,10 @@ export class Display {
         this.screenData[y * this.width + x] = value;
       }
 
+  public getPixel(x: number, y: number) : number {
+    return this.screenData[ y * this.width + x];
+  }
+
     // probably not needed at all?
     public getData(): Uint8Array {
         return this.screenData;

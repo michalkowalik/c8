@@ -58,6 +58,8 @@ export class Cpu {
         // decode instruction
 
         // execute instruction
+
+        // increase PC -> unless the operation was jump (?)
     }
 
     // let's define some opcodes:
@@ -97,16 +99,40 @@ export class Cpu {
      * This is the most involved instruction. 
      * It will draw an N pixels tall sprite from the memory location that the I index register is holding to the screen,
      * at the horizontal X coordinate in VX and the Y coordinate in VY.
+     * 
+     * one byte contains a row of 8 pixels -> each bit is a pixel, left to right from msb to lsb
+     * 
      * All the pixels that are “on” in the sprite will flip the pixels on the screen that it is drawn to 
      * (from left to right, from most to least significant bit). If any pixels on the screen were turned “off” by this,
      * the VF flag register is set to 1. Otherwise, it’s set to 0.
      */
     private opDraw(code: opCode)  {
         const x = (this.V[code & 0x0F00 >> 8]) % 64; // modulo screen width
-        const y = (this.V[code & 0x00F0 >> 4]) % 32; // modulo screen height
-        const pixelCount = code & 0xF;
+        let y = (this.V[code & 0x00F0 >> 4]) % 32; // modulo screen height
+        const rowCount = code & 0xF;
 
         this.V[0xF] = 0;
+        for (let row = 0; row++; row < rowCount) {
+            let currentX = x;
+            const line = this.memory[this.I + row]
+
+            for (let i = 0; i++; i < 8) {
+                const pixel = (line & (1 << (7 - i))) >> (7 - i);
+
+                // collision detection
+                if (pixel === 1 && this.display.getPixel(currentX, y) === 1) {
+                    this.V[0xF] = 1;
+                }
+
+                this.display.setPixel(currentX, y, pixel);
+                currentX += 1;
+            }
+            y += 1;
+        }
+
+        // TOOD: redraw can be triggered by a counter running in the background.
+        // screen modified, redraw:
+        this.display.render();
 
     }
 }
