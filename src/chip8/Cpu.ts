@@ -2,6 +2,7 @@
 // CHIP=8 CPU class
 
 import { Display } from "./Display";
+import { Stack } from "./Stack";
 
 export type opCode = number;
 
@@ -28,8 +29,7 @@ export class Cpu {
     soundTimer: number = 0;
 
     // stack and stack pointer
-    stack: number[] = new Array(16);
-    sp: number = 0;
+    private stack = new Stack<number>(16);
 
     private display: Display;
 
@@ -37,7 +37,10 @@ export class Cpu {
     private codes: OpCodes = {
         0x00E0 : this.opClearScreen,
         0x1000 : this.opJump,
-        0x6000 : this.opSet
+        0x6000 : this.opSet,
+        0x7000 : this.opAdd,
+        0xA000 : this.opSetIndexReg,
+        0xD000 : this.opDraw,
     }
 
     constructor(display: Display) {
@@ -66,7 +69,7 @@ export class Cpu {
 
     // NO PC INCREMENT AFTER JUMP!
     private opJump(code: opCode) {
-        const addr = code & 0xFFF
+        const addr = code & 0xFFF;
         this.pc = addr;
     }
 
@@ -74,5 +77,36 @@ export class Cpu {
         const register = (code & 0xF00) >> 8;
         const value = code & 0xFF;
         this.V[register] = value;
+    }
+
+    // Add NN to VX.
+    // CHIP-8 does not set the carry flag
+    private opAdd(code: opCode) {
+        const reg = (code & 0x0F00) >> 8;
+        const val = (code & 0xFF);
+
+        this.V[reg] = (this.V[reg] + val) & 0xFF;
+    }
+
+    private opSetIndexReg(code: opCode) {
+        this.I = code & 0x0FFF;        
+    }
+
+    /*
+     * DXYN:
+     * This is the most involved instruction. 
+     * It will draw an N pixels tall sprite from the memory location that the I index register is holding to the screen,
+     * at the horizontal X coordinate in VX and the Y coordinate in VY.
+     * All the pixels that are “on” in the sprite will flip the pixels on the screen that it is drawn to 
+     * (from left to right, from most to least significant bit). If any pixels on the screen were turned “off” by this,
+     * the VF flag register is set to 1. Otherwise, it’s set to 0.
+     */
+    private opDraw(code: opCode)  {
+        const x = (this.V[code & 0x0F00 >> 8]) % 64; // modulo screen width
+        const y = (this.V[code & 0x00F0 >> 4]) % 32; // modulo screen height
+        const pixelCount = code & 0xF;
+
+        this.V[0xF] = 0;
+
     }
 }
