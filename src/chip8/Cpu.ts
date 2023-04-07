@@ -50,16 +50,26 @@ export class Cpu {
         this.display = display;
     }
 
+    // TODO: it won't be always that easy!
+    private decode(opcode: opCode): (code: opCode) => void {
+        return this.codes[opcode & 0xF000]
+    }
+
     // single CPU step
     public step(): void {
         const opcode: opCode = this.memory[this.pc] << 8 | this.memory[this.pc + 1] & 0xFF;
         console.log(opcode);
         
         // decode instruction
+        const op = this.decode(opcode);
 
         // execute instruction
+        op(opcode);
 
         // increase PC -> unless the operation was jump (?)
+        if (!((opcode & 0x1000) == 0x1000)) {
+            this.pc += 2;
+        }
     }
 
     // let's define some opcodes:

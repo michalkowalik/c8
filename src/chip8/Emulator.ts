@@ -29,10 +29,14 @@ export class Emulator {
             }
         }
 
+        // load ibm logo to memory
+
     }
 
     public run(): void {
-        // here goes nothing
+        for (;;) {
+            this.cpu.step();
+        }
     }
 
 }
