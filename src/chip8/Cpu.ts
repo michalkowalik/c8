@@ -36,6 +36,7 @@ export class Cpu {
     // keeping opcodes in a lookup table simplifies decoding
     private codes: OpCodes = {
         0x00E0 : this.opClearScreen,
+        // 0x0000 : this.opClearScreen, // < not correct. 
         0x1000 : this.opJump,
         0x6000 : this.opSet,
         0x7000 : this.opAdd,
@@ -58,13 +59,30 @@ export class Cpu {
     // single CPU step
     public step(): void {
         const opcode: opCode = this.memory[this.pc] << 8 | this.memory[this.pc + 1] & 0xFF;
-        console.log(opcode);
+        console.log(opcode.toString(16));
         
         // decode instruction
-        const op = this.decode(opcode);
+        //const op = this.decode(opcode);
+
+        switch (opcode & 0xF000) {
+            case 0x0000: this.opClearScreen(opcode);
+                break;
+            case 0x1000: this.opJump(opcode);
+                break; 
+            case 0x6000: this.opSet(opcode);
+                break;
+            case 0x7000: this.opAdd(opcode);
+                break;
+            case 0xA000: this.opSetIndexReg(opcode);
+                break;
+            case 0xD000: this.opDraw(opcode);
+                break;
+            default:
+                throw new Error("No OpCode found");
+        }
 
         // execute instruction
-        op(opcode);
+        //op(opcode);
 
         // increase PC -> unless the operation was jump (?)
         if (!((opcode & 0x1000) == 0x1000)) {
@@ -117,16 +135,16 @@ export class Cpu {
      * the VF flag register is set to 1. Otherwise, it’s set to 0.
      */
     private opDraw(code: opCode)  {
-        const x = (this.V[code & 0x0F00 >> 8]) % 64; // modulo screen width
-        let y = (this.V[code & 0x00F0 >> 4]) % 32; // modulo screen height
+        const x = (this.V[(code & 0x0F00) >> 8]) % 64; // modulo screen width
+        let y = (this.V[(code & 0x00F0) >> 4]) % 32; // modulo screen height
         const rowCount = code & 0xF;
 
         this.V[0xF] = 0;
-        for (let row = 0; row++; row < rowCount) {
+        for (let row = 0; row < rowCount; row++) {
             let currentX = x;
             const line = this.memory[this.I + row]
 
-            for (let i = 0; i++; i < 8) {
+            for (let i = 0; i < 8; i++) {
                 const pixel = (line & (1 << (7 - i))) >> (7 - i);
 
                 // collision detection

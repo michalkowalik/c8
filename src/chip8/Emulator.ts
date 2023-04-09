@@ -3,6 +3,7 @@
 import { Cpu } from "./Cpu";
 import { Display } from "./Display";
 import { c8Fonts } from "./fonts";
+import { IbmRom } from "./ibm";
 
 export class Emulator {
     private canvas: HTMLCanvasElement;
@@ -30,12 +31,22 @@ export class Emulator {
         }
 
         // load ibm logo to memory
+        this.loadIBM();
 
     }
 
     public run(): void {
         for (;;) {
             this.cpu.step();
+        }
+    }
+
+    private loadIBM(): void {
+        // starting address of the 
+        let addr = 0x200;
+        for (const i of IbmRom) {
+            this.cpu.memory[addr] = i;
+            addr += 1;
         }
     }
 
