@@ -35,10 +35,16 @@ export class Emulator {
 
     }
 
-    public run(): void {
+    public async run(): Promise<void> {
         for (;;) {
-            this.cpu.step();
+            await this.cpu.step();
+            await this.display.render();
         }
+    }
+
+    public async step(): Promise<void> {
+        await this.cpu.step();
+        await this.display.render();
     }
 
     private loadIBM(): void {

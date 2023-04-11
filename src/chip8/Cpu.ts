@@ -33,17 +33,6 @@ export class Cpu {
 
     private display: Display;
 
-    // keeping opcodes in a lookup table simplifies decoding
-    private codes: OpCodes = {
-        0x00E0 : this.opClearScreen,
-        // 0x0000 : this.opClearScreen, // < not correct. 
-        0x1000 : this.opJump,
-        0x6000 : this.opSet,
-        0x7000 : this.opAdd,
-        0xA000 : this.opSetIndexReg,
-        0xD000 : this.opDraw,
-    }
-
     constructor(display: Display) {
         this.V.fill(0);
         this.memory.fill(0);
@@ -51,19 +40,12 @@ export class Cpu {
         this.display = display;
     }
 
-    // TODO: it won't be always that easy!
-    private decode(opcode: opCode): (code: opCode) => void {
-        return this.codes[opcode & 0xF000]
-    }
-
     // single CPU step
-    public step(): void {
+    public async step(): Promise<void> {
         const opcode: opCode = this.memory[this.pc] << 8 | this.memory[this.pc + 1] & 0xFF;
         console.log(opcode.toString(16));
         
-        // decode instruction
-        //const op = this.decode(opcode);
-
+        // decode & execute instruction
         switch (opcode & 0xF000) {
             case 0x0000: this.opClearScreen(opcode);
                 break;
@@ -81,11 +63,8 @@ export class Cpu {
                 throw new Error("No OpCode found");
         }
 
-        // execute instruction
-        //op(opcode);
-
         // increase PC -> unless the operation was jump (?)
-        if (!((opcode & 0x1000) == 0x1000)) {
+        if (!((opcode & 0xF000) == 0x1000)) {
             this.pc += 2;
         }
     }
@@ -160,7 +139,7 @@ export class Cpu {
 
         // TOOD: redraw can be triggered by a counter running in the background.
         // screen modified, redraw:
-        this.display.render();
+        // this.display.render();
 
     }
 }
