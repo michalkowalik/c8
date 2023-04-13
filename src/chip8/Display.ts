@@ -43,7 +43,7 @@ export class Display {
       }
 
     // render is the funny part
-    public render(): void {
+    public async render(): Promise<void> {
         this.canvasContext.fillStyle = 'black';
         this.canvasContext.fillRect(0, 0, this.canvasContext.canvas.width, this.canvasContext.canvas.height);
 
