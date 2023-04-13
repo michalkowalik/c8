@@ -6,10 +6,6 @@ import { Stack } from "./Stack";
 
 export type opCode = number;
 
-export type OpCodes = {
-    [code: opCode]: (code: opCode) => void;
-}
-
 export class Cpu {
     // index register
     I: number = 0;
@@ -64,7 +60,7 @@ export class Cpu {
         }
 
         // increase PC -> unless the operation was jump (?)
-        if (!((opcode & 0xF000) == 0x1000)) {
+        if ((opcode & 0xF000) != 0x1000) {
             this.pc += 2;
         }
     }

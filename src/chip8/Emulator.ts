@@ -26,7 +26,7 @@ export class Emulator {
         for (const font in c8Fonts) {
             for (const v of c8Fonts[font]) {
                 this.cpu.memory[addrPointer] = v;
-                addrPointer+=1;
+                addrPointer += 1;
             }
         }
 
@@ -36,9 +36,8 @@ export class Emulator {
     }
 
     public async run(): Promise<void> {
-        for (;;) {
-            await this.cpu.step();
-            await this.display.render();
+        for (; ;) {
+            await this.step();
         }
     }
 
