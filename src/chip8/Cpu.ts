@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 // CHIP=8 CPU class
 
@@ -24,6 +25,9 @@ export class Cpu {
     delayTimer: number = 0;
     soundTimer: number = 0;
 
+    // is redraw needed?
+    redrawNeeded: boolean = false;
+
     // stack and stack pointer
     private stack = new Stack<number>(16);
 
@@ -43,10 +47,25 @@ export class Cpu {
         
         // decode & execute instruction
         switch (opcode & 0xF000) {
-            case 0x0000: this.opClearScreen(opcode);
+            case 0x0000: {
+                if (opcode == 0x00E0) {
+                    this.opClearScreen(opcode);
+                }
+                if (opcode == 0x00EE) {
+                    this.opRet(opcode);
+                }
+            }
                 break;
             case 0x1000: this.opJump(opcode);
                 break; 
+            case 0x2000: this.opCall(opcode);
+                break;
+            case 0x3000: this.opSkipEqual(opcode);
+                break;
+            case 0x4000: this.opSkipNotEqual(opcode);
+                break;
+            case 0x5000: this.opSkipRegEqual(opcode);
+                break;
             case 0x6000: this.opSet(opcode);
                 break;
             case 0x7000: this.opAdd(opcode);
@@ -65,27 +84,99 @@ export class Cpu {
         }
     }
 
-    // let's define some opcodes:
+    public isRedrawNeeded() : boolean  {
+        return this.redrawNeeded;
+    }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    public unsetRedrawNeeded() : void {
+        this.redrawNeeded = false;
+    }
+
+    /*
+     00E0 - CLS
+     Clear the display.
+    */
     private opClearScreen(_code: opCode) {
         this.display.clear();
     }
 
-    // NO PC INCREMENT AFTER JUMP!
+    /*
+     00EE - RET
+     Return from a subroutine.
+    */
+    private opRet(_code: opCode) {
+        this.pc = this.stack.pop();
+    }
+
+    /*
+     1nnn - JP addr
+     Jump to location nnn. NO PC INCREMENT AFTER JUMP!
+    */
     private opJump(code: opCode) {
         const addr = code & 0xFFF;
         this.pc = addr;
     }
 
+    /*
+     2nnn - CALL addr
+     Call subroutine at nnn.
+    */ 
+    private opCall(code: opCode) {
+        const addr = code & 0xFFF;
+        this.stack.push(this.pc);
+        this.pc = addr;
+    }
+
+    /*
+     3xkk - SE Vx, byte
+     Skip next instruction if Vx = kk.    
+    */
+   private opSkipEqual(code: opCode) {
+        const register = (code & 0x0F00) >> 8;
+        const val = code & 0xFF;
+        if (this.V[register] === val) {
+            this.pc += 2;
+        }
+   }
+
+   /*
+    4xkk - SNE Vx, byte
+    Skip next instruction if Vx != kk.
+   */
+   private opSkipNotEqual(code: opCode) {
+        const register = (code & 0x0F00) >> 8;
+        const val = code & 0xFF;
+        if (this.V[register] !== val) {
+            this.pc += 2;
+        }
+   }
+
+   /*
+    5xy0 - SE Vx, Vy
+    Skip next instruction if Vx = Vy.
+   */
+   private opSkipRegEqual(code: opCode) {
+        const regX = (code & 0x0F00) >> 8;
+        const regY = (code & 0x00F0) >> 4;
+        if (this.V[regX] == this.V[regY]) {
+            this.pc += 2;
+        }
+   }
+
+   /*
+    6xkk - LD Vx, byte
+    Set Vx = kk.
+   */
     private opSet(code: opCode) {
         const register = (code & 0xF00) >> 8;
         const value = code & 0xFF;
         this.V[register] = value;
     }
 
-    // Add NN to VX.
-    // CHIP-8 does not set the carry flag
+    /*
+     7xkk - ADD Vx, byte
+     Set Vx = Vx + kk.
+    */
     private opAdd(code: opCode) {
         const reg = (code & 0x0F00) >> 8;
         const val = (code & 0xFF);
@@ -93,6 +184,10 @@ export class Cpu {
         this.V[reg] = (this.V[reg] + val) & 0xFF;
     }
 
+    /*
+     Annn - LD I, addr
+     Set I = nnn.
+    */
     private opSetIndexReg(code: opCode) {
         this.I = code & 0x0FFF;        
     }
@@ -132,6 +227,8 @@ export class Cpu {
             }
             y += 1;
         }
+
+        this.redrawNeeded = true;
 
         // TOOD: redraw can be triggered by a counter running in the background.
         // screen modified, redraw:

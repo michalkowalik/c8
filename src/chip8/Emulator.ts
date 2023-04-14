@@ -57,10 +57,14 @@ export class Emulator {
         this.interval = 0;
     }
 
-    public async step(): Promise<void> {
-        
+
+    public async step(): Promise<void> {    
         await this.cpu.step();
-        await this.display.render();
+        if (this.cpu.isRedrawNeeded()) {
+            await this.display.render();
+            this.cpu.unsetRedrawNeeded();
+        }
+        
     }
 
     private loadIBM(): void {
