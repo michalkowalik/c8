@@ -8,6 +8,7 @@
     <div>
         <button @click="step">Step</button>
         <button @click="run">Run</button>
+        <button @click="halt">Halt</button>
     </div>
 </template>
 
@@ -29,13 +30,19 @@
             const chipCanvas = this.$refs.chipCanvas as HTMLCanvasElement;
             this.emulator = new Emulator(chipCanvas);
             this.emulator.init();
-            //this.emulator.run();
         },
         methods: {
             run() {
                 console.log("Starting emulator");
                 if(this.emulator) {
+                    this.emulator.start();
                     this.emulator.run();
+                }
+            },
+            halt() {
+                console.log("Halting CPU");
+                if (this.emulator) {
+                    this.emulator.halt();
                 }
             },
             step() {

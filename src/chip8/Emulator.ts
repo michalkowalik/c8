@@ -6,20 +6,24 @@ import { c8Fonts } from "./fonts";
 import { IbmRom } from "./ibm";
 
 export class Emulator {
-    private canvas: HTMLCanvasElement;
+    // CPU tick interval => hopefully a temporary solution
+    private deltaTime = 1;
+
     private display: Display;
     private cpu: Cpu;
+    private interval: ReturnType<typeof setInterval>;
+    private running: boolean;
 
     constructor(canvas: HTMLCanvasElement) {
-        this.canvas = canvas;
         this.display = new Display(canvas);
         this.cpu = new Cpu(this.display);
+        this.interval = 0;
+        this.running = false;
     }
 
     public init(): void {
         // clear the screen
         this.display.clear();
-
         // load fonts - for whatever historical reason, there's a convention
         // to load fonts to addresses between 050 - 09F
         let addrPointer = 0x50;
@@ -36,12 +40,25 @@ export class Emulator {
     }
 
     public async run(): Promise<void> {
-        for (; ;) {
-            await this.step();
+        if (this.running) {
+           if(!this.interval || this.interval == 0) {
+                this.interval = setInterval(() => { this.step(); }, this.deltaTime);
+            }
         }
     }
 
+    public start(): void {
+        this.running = true;
+    }
+
+    public halt(): void {
+        this.running = false;
+        clearInterval(this.interval);
+        this.interval = 0;
+    }
+
     public async step(): Promise<void> {
+        
         await this.cpu.step();
         await this.display.render();
     }
