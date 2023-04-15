@@ -36,7 +36,6 @@ export class Emulator {
 
         // load ibm logo to memory
         this.loadIBM();
-
     }
 
     public async run(): Promise<void> {

@@ -70,6 +70,29 @@ export class Cpu {
                 break;
             case 0x7000: this.opAdd(opcode);
                 break;
+            case 0x8000: {
+                switch (opcode & 0xF) {
+                    case 0x1: this.opLD(opcode);
+                        break;
+                    case 0x2: this.opAND(opcode);
+                        break;
+                    case 0x3: this.opXOR(opcode);
+                        break;
+                    case 0x4: this.opADD(opcode);
+                        break;
+                    case 0x5: this.opSUB(opcode);
+                        break;
+                    case 0x6: this.opSHR(opcode);
+                        break;
+                    case 0x7: this.opSUBN(opcode);
+                        break;
+                    case 0xE: this.opSHL(opcode);
+                        break;
+                    default:
+                        throw new Error('No opcode found');
+                }
+            }
+                break;
             case 0xA000: this.opSetIndexReg(opcode);
                 break;
             case 0xD000: this.opDraw(opcode);
@@ -182,6 +205,100 @@ export class Cpu {
         const val = (code & 0xFF);
 
         this.V[reg] = (this.V[reg] + val) & 0xFF;
+    }
+
+    private registerOp(code: opCode, f: (regX: number, regY: number) => number) : void {
+        const regX = (code & 0x0F00) >> 8;
+        const regY = (code & 0x00F0) >> 4;
+        this.V[regX] = f(this.V[regX], this.V[regY])
+    }
+
+    /*
+     8xy0 - LD Vx, Vy
+     Set Vx = Vy.
+     Stores the value of register Vy in register Vx.
+    */
+    private opLD(code: opCode) {
+        this.registerOp(code, (_x, y) => y);
+    }
+
+    /*
+     8xy1 - OR Vx, Vy
+     Set Vx = Vx OR Vy.
+    */
+    private opOR(code: opCode) {
+        this.registerOp(code, (x, y) => x | y);
+    }
+
+    /*
+     8xy2 - AND Vx, Vy
+     Set Vx = Vx AND Vy.
+    */
+    private opAND(code: opCode) {
+        this.registerOp(code, (x, y) => x & y);
+    }
+
+    /*
+     8xy3 - XOR Vx, Vy
+     Set Vx = Vx XOR Vy.
+    */
+    private opXOR(code: opCode) {
+        this.registerOp(code, (x, y) => x ^ y);
+    }
+
+    /*
+     8xy4 - ADD Vx, Vy
+     Set Vx = Vx + Vy, set VF = carry.
+    */
+    private opADD(code: opCode) {
+        this.registerOp(code, (x, y) => {
+            (x + y > 255) ? this.V[0xF] = 1 : this.V[0xF] = 0;
+            return (x + y) & 0xFF;
+            });
+    }
+
+    /*
+     8xy5 - SUB Vx, Vy  
+     Set Vx = Vx - Vy, set VF = NOT borrow.
+    */
+    private opSUB(code: opCode) {
+        this.registerOp(code, (x, y) => {
+            (x > y) ? this.V[0xF] = 1 : this.V[0xF] = 0;
+            return x - y;
+        });
+    }
+
+    /*
+     8xy6 - SHR Vx {, Vy}
+     Set Vx = Vx SHR 1.
+    */
+    private opSHR(code: opCode) {
+        this.registerOp(code, (x, _y) => {
+            ((x & 1) == 1) ? this.V[0xF] = 1 : this.V[0xF] = 0;
+            return x >> 1;
+        });
+    }
+
+    /*
+     8xy7 - SUBN Vx, Vy
+     Set Vx = Vy - Vx, set VF = NOT borrow.
+    */
+    private opSUBN(code: opCode) {
+        this.registerOp(code, (x, y) => {
+            (y > x) ? this.V[0xF] = 1 : this.V[0xF] = 0;
+            return y - x;
+        });
+    }
+
+    /*
+     8xyE - SHL Vx {, Vy}
+     Set Vx = Vx SHL 1.
+    */
+    private opSHL(code: opCode) {
+        this.registerOp(code, (x, _y) => {
+            ((x & 0x80) == 0x80) ? this.V[0xF] = 1 : this.V[0xF] = 0;
+            return (x << 1) & 0xFF;
+        });
     }
 
     /*
