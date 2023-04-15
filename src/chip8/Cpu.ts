@@ -93,16 +93,54 @@ export class Cpu {
                 }
             }
                 break;
+            case 0x9000: this.opSNE(opcode);
+                break;
             case 0xA000: this.opSetIndexReg(opcode);
                 break;
+            case 0xB000: this.opJP(opcode);
+                break;
+            case 0xC000: this.opRND(opcode);
+                break;
             case 0xD000: this.opDraw(opcode);
+                break;
+            case 0xE000: {
+                switch (opcode & 0xFF) {
+                    case 0x9E: this.opSKP(opcode);
+                        break;
+                    case 0xA1: this.opSKNP(opcode);
+                        break;
+                }
+            }
+                break;
+            case 0xF000: {
+                switch (opcode & 0xFF) {
+                    case 0x07: this.opLdDelayTimer(opcode);
+                        break;
+                    case 0x0A: this.opWaitForKey(opcode);
+                        break;
+                    case 0x15: this.opSetDelayTimer(opcode);
+                        break;
+                    case 0x18: this.opSetSoundTimer(opcode);
+                        break;
+                    case 0x1E: this.opSetIndex(opcode);
+                        break;
+                    case 0x29: this.opLoadChar(opcode);
+                        break;
+                    case 0x33: this.opLDBCD(opcode);
+                        break;
+                    case 0x55: this.opStoreRegisters(opcode);
+                        break;
+                    case 0x65: this.opLoadRegisters(opcode);
+                        break;
+                }
+            }
                 break;
             default:
                 throw new Error("No OpCode found");
         }
 
         // increase PC -> unless the operation was jump (?)
-        if ((opcode & 0xF000) != 0x1000) {
+        if ((opcode & 0xF000) != 0x1000 && (opcode & 0xF000) != 0xB000) {
             this.pc += 2;
         }
     }
@@ -154,31 +192,31 @@ export class Cpu {
      3xkk - SE Vx, byte
      Skip next instruction if Vx = kk.    
     */
-   private opSkipEqual(code: opCode) {
+    private opSkipEqual(code: opCode) {
         const register = (code & 0x0F00) >> 8;
         const val = code & 0xFF;
         if (this.V[register] === val) {
             this.pc += 2;
         }
-   }
+    }
 
-   /*
-    4xkk - SNE Vx, byte
-    Skip next instruction if Vx != kk.
-   */
-   private opSkipNotEqual(code: opCode) {
+    /*
+        4xkk - SNE Vx, byte
+        Skip next instruction if Vx != kk.
+    */
+    private opSkipNotEqual(code: opCode) {
         const register = (code & 0x0F00) >> 8;
         const val = code & 0xFF;
         if (this.V[register] !== val) {
             this.pc += 2;
         }
-   }
+    }
 
-   /*
-    5xy0 - SE Vx, Vy
-    Skip next instruction if Vx = Vy.
-   */
-   private opSkipRegEqual(code: opCode) {
+    /*
+        5xy0 - SE Vx, Vy
+        Skip next instruction if Vx = Vy.
+    */
+    private opSkipRegEqual(code: opCode) {
         const regX = (code & 0x0F00) >> 8;
         const regY = (code & 0x00F0) >> 4;
         if (this.V[regX] == this.V[regY]) {
@@ -302,6 +340,18 @@ export class Cpu {
     }
 
     /*
+     9xy0 - SNE Vx, Vy
+     Skip next instruction if Vx != Vy.
+    */
+    private opSNE(code: opCode) {
+        const regX = (code & 0x0F00) >> 8;
+        const regY = (code & 0x00F0) >> 4;
+        if (this.V[regX] != this.V[regY]) {
+            this.pc += 2;
+        }
+    }
+
+    /*
      Annn - LD I, addr
      Set I = nnn.
     */
@@ -310,6 +360,26 @@ export class Cpu {
     }
 
     /*
+     Bnnn - JP V0, addr
+     Jump to location nnn + V0.
+     TODO: increase PC or not??
+    */
+    private opJP(code: opCode) {
+        const addr = (code & 0xFFF);
+        this.pc = (addr + this.V[0]) & 0xFFFF;
+    }
+
+    /*
+     Cxkk - RND Vx, byte
+     Set Vx = random byte AND kk.
+    */
+    private opRND(code: opCode){
+        const reg = (code & 0xF00) >> 8;
+        const val = code & 0xFF;
+        this.V[reg] = (Math.floor(Math.random() * 256) & 0xFF) & val;
+    }
+
+    /* TODO: FINNISH!!  
      * DXYN:
      * This is the most involved instruction. 
      * It will draw an N pixels tall sprite from the memory location that the I index register is holding to the screen,
@@ -346,10 +416,92 @@ export class Cpu {
         }
 
         this.redrawNeeded = true;
+    }
+    /*
+     Ex9E - SKP Vx
+     Skip next instruction if key with the value of Vx is pressed.
+    */
+    private opSKP(code: opCode) {
+        throw new Error("not implemented yet");
+    }
 
-        // TOOD: redraw can be triggered by a counter running in the background.
-        // screen modified, redraw:
-        // this.display.render();
+   /*
+     ExA1 - SKNP Vx
+     Skip next instruction if key with the value of Vx is not pressed.
+   */
+    private opSKNP(code: opCode) {
+        throw new Error("not implemented yet");
+    }
 
+   /*
+     Fx07 - LD Vx, DT
+     Set Vx = delay timer value.
+   */
+    private opLdDelayTimer(code: opCode) {
+        throw new Error("not implemented yet");
+    }
+
+   /*
+     Fx0A - LD Vx, K
+     Wait for a key press, store the value of the key in Vx.
+   */
+    private opWaitForKey(code: opCode) {
+        throw new Error("not implemented yet");
+    }
+
+   /*
+     Fx15 - LD DT, Vx
+     Set delay timer = Vx.
+   */
+    private opSetDelayTimer(code: opCode) {
+        throw new Error("not implemented yet");
+    }
+
+   /*
+     Fx18 - LD ST, Vx
+     Set sound timer = Vx.
+   */
+    private opSetSoundTimer(code: opCode) {
+        throw new Error("not implemented yet");
+    }
+
+  /*
+     Fx1E - ADD I, Vx
+     Set I = I + Vx.
+  */
+    private opSetIndex(code: opCode) {
+        throw new Error("not implemented yet");
+    }
+
+  /*
+    Fx29 - LD F, Vx
+    Set I = location of sprite for digit Vx.
+  */  
+    private opLoadChar(code: opCode) {
+        throw new Error("not implemented yet");
+    }
+
+  /*
+    Fx33 - LD B, Vx
+    Store BCD representation of Vx in memory locations I, I+1, and I+2.
+  */
+    private opLDBCD(code: opCode) {
+        throw new Error("not implemented yet");
+    }
+
+  /*
+    Fx55 - LD [I], Vx
+    Store registers V0 through Vx in memory starting at location I.
+  */
+    private opStoreRegisters(code: opCode) {
+        throw new Error("not implemented yet");
+    }
+
+  /*
+    Fx65 - LD Vx, [I]
+    Read registers V0 through Vx from memory starting at location I.
+  */
+    private opLoadRegisters(code: opCode) {
+        throw new Error("not implemented yet");
     }
 }
