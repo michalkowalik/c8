@@ -26,11 +26,12 @@ export class Display {
         this.render();
     }
 
+    // pixel value is a XOR between the current and new value
     public setPixel(x: number, y: number, value: number): void {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
           return;
         }
-        this.screenData[y * this.width + x] = value;
+        this.screenData[y * this.width + x] ^= value;
       }
 
   public getPixel(x: number, y: number) : number {

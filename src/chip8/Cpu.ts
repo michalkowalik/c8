@@ -379,8 +379,7 @@ export class Cpu {
         this.V[reg] = (Math.floor(Math.random() * 256) & 0xFF) & val;
     }
 
-    /* TODO: FINNISH!!  
-     * DXYN:
+    /* DXYN:
      * This is the most involved instruction. 
      * It will draw an N pixels tall sprite from the memory location that the I index register is holding to the screen,
      * at the horizontal X coordinate in VX and the Y coordinate in VY.
@@ -408,13 +407,17 @@ export class Cpu {
                 if (pixel === 1 && this.display.getPixel(currentX, y) === 1) {
                     this.V[0xF] = 1;
                 }
-
                 this.display.setPixel(currentX, y, pixel);
                 currentX += 1;
+                if (currentX > 64) {
+                    break;
+                }
             }
             y += 1;
+            if (y > 32) {
+                break;
+            }
         }
-
         this.redrawNeeded = true;
     }
     /*
