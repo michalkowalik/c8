@@ -2,59 +2,73 @@
 // CHIP-8 display class
 
 export class Display {
+  private readonly width: number;
+  private readonly height: number;
+  private readonly pixelSize: number;
+  private screenData: Uint8Array;
+  private canvasContext: CanvasRenderingContext2D;
 
-    private readonly width: number;
-    private readonly height: number;
-    private readonly pixelSize: number;
-    private screenData: Uint8Array;
-    private canvasContext: CanvasRenderingContext2D;
-
-    constructor(canvas: HTMLCanvasElement, width = 64, height = 32, pixelSize = 8) {
-        this.width = width;
-        this.height = height;
-        this.pixelSize = pixelSize;
-        this.screenData = new Uint8Array(this.width * this.height);
-        const canvasContext = canvas.getContext('2d');
-        if(!canvasContext || !(canvasContext instanceof CanvasRenderingContext2D)) {
-          throw new Error('Failed to get 2D context!');
-        }
-        this.canvasContext = canvasContext;
+  constructor(
+    canvas: HTMLCanvasElement,
+    width = 64,
+    height = 32,
+    pixelSize = 8
+  ) {
+    this.width = width;
+    this.height = height;
+    this.pixelSize = pixelSize;
+    this.screenData = new Uint8Array(this.width * this.height);
+    const canvasContext = canvas.getContext("2d");
+    if (!canvasContext || !(canvasContext instanceof CanvasRenderingContext2D)) {
+      throw new Error("Failed to get 2D context!");
     }
-
-    public clear(): void {
-        this.screenData.fill(0);
-        this.render();
-    }
-
-    // pixel value is a XOR between the current and new value
-    public setPixel(x: number, y: number, value: number): void {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-          return;
-        }
-        this.screenData[y * this.width + x] ^= value;
-      }
-
-  public getPixel(x: number, y: number) : number {
-    return this.screenData[ y * this.width + x];
+    this.canvasContext = canvasContext;
   }
 
-    // probably not needed at all?
-    public getData(): Uint8Array {
-        return this.screenData;
-      }
+  public clear(): void {
+    this.screenData.fill(0);
+    this.render();
+  }
 
-    // render is the funny part
-    public async render(): Promise<void> {
-        this.canvasContext.fillStyle = 'black';
-        this.canvasContext.fillRect(0, 0, this.canvasContext.canvas.width, this.canvasContext.canvas.height);
+  // pixel value is a XOR between the current and new value
+  public setPixel(x: number, y: number, value: number): void {
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+      return;
+    }
+    this.screenData[y * this.width + x] ^= value;
+  }
 
-        this.canvasContext.fillStyle = 'white';
-        for (let y = 0; y < this.height; y++) {
-          for (let x = 0; x < this.width; x++) {
-            if (this.screenData[y * this.width + x] === 1) {
-              this.canvasContext.fillRect(x * this.pixelSize, y * this.pixelSize, this.pixelSize, this.pixelSize);
-            }
-          }
+  public getPixel(x: number, y: number): number {
+    return this.screenData[y * this.width + x];
+  }
+
+  // probably not needed at all?
+  public getData(): Uint8Array {
+    return this.screenData;
+  }
+
+  // render is the funny part
+  public async render(): Promise<void> {
+    this.canvasContext.fillStyle = "black";
+    this.canvasContext.fillRect(
+      0,
+      0,
+      this.canvasContext.canvas.width,
+      this.canvasContext.canvas.height
+    );
+
+    this.canvasContext.fillStyle = "white";
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        if (this.screenData[y * this.width + x] === 1) {
+          this.canvasContext.fillRect(
+            x * this.pixelSize,
+            y * this.pixelSize,
+            this.pixelSize,
+            this.pixelSize
+          );
         }
       }
+    }
+  }
 }

@@ -500,7 +500,7 @@ export class Cpu {
       Set Vx = delay timer value.
     */
   private opLdDelayTimer(code: opCode) {
-    const reg = (code & 0xF00) >> 8;
+    const reg = (code & 0xf00) >> 8;
     this.V[reg] = this.delayTimer.get();
   }
 
@@ -517,7 +517,7 @@ export class Cpu {
       Set delay timer = Vx.
     */
   private opSetDelayTimer(code: opCode) {
-    const reg = (code & 0xF00) >> 8;
+    const reg = (code & 0xf00) >> 8;
     this.delayTimer.set(this.V[reg]);
   }
 
@@ -526,7 +526,7 @@ export class Cpu {
       Set sound timer = Vx.
     */
   private opSetSoundTimer(code: opCode) {
-    const reg = (code & 0xF00) >> 8;
+    const reg = (code & 0xf00) >> 8;
     this.soundTimer.set(this.V[reg]);
   }
 
@@ -535,7 +535,7 @@ export class Cpu {
        Set I = I + Vx.
     */
   private opSetIndex(code: opCode) {
-    const reg = (code & 0xF00) >> 8;
+    const reg = (code & 0xf00) >> 8;
     this.I += this.V[reg];
   }
 
