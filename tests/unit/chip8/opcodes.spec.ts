@@ -73,4 +73,16 @@ describe("CPU", () => {
         expect(cpu.V[0]).equal(0x4);
         expect(cpu.V[0xF]).equal(1);
     });
+
+    it("should set I register to an address holding selected char", () => {
+        cpu.V[0] = 0x1;
+        cpu.memory[0x200] = 0xF0;
+        cpu.memory[0x201] = 0x29;
+        cpu.pc = 0x200;
+        cpu.I = 0;
+
+        cpu.step();
+        expect(cpu.I).equal(0x55);
+    });
+
 });

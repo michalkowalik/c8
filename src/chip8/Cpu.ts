@@ -536,7 +536,11 @@ export class Cpu {
     */
   private opSetIndex(code: opCode) {
     const reg = (code & 0xf00) >> 8;
-    this.I += this.V[reg];
+    this.V[0xF] = 0;
+    if (this.I + this.V[reg] > 0xFFF) {
+        this.V[0xF] = 1;
+    }
+    this.I = (this.I + this.V[reg]) & 0xFFF;
   }
 
   /*
@@ -544,7 +548,8 @@ export class Cpu {
       Set I = location of sprite for digit Vx.
     */
   private opLoadChar(code: opCode) {
-    throw new Error("not implemented yet");
+    const reg = (code & 0xF00) >> 8;
+    this.I = 0x50 + (5 * this.V[reg]);
   }
 
   /*
