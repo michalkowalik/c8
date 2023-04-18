@@ -44,7 +44,7 @@ export class Cpu {
     public async step(): Promise<void> {
         const opcode: opCode = this.memory[this.pc] << 8 | this.memory[this.pc + 1] & 0xFF;
         console.log(opcode.toString(16));
-        
+
         // decode & execute instruction
         switch (opcode & 0xF000) {
             case 0x0000: {
@@ -57,7 +57,7 @@ export class Cpu {
             }
                 break;
             case 0x1000: this.opJump(opcode);
-                break; 
+                break;
             case 0x2000: this.opCall(opcode);
                 break;
             case 0x3000: this.opSkipEqual(opcode);
@@ -72,7 +72,9 @@ export class Cpu {
                 break;
             case 0x8000: {
                 switch (opcode & 0xF) {
-                    case 0x1: this.opLD(opcode);
+                    case 0x0: this.opLD(opcode);
+                        break;
+                    case 0x1: this.opOR(opcode);
                         break;
                     case 0x2: this.opAND(opcode);
                         break;
@@ -145,11 +147,11 @@ export class Cpu {
         }
     }
 
-    public isRedrawNeeded() : boolean  {
+    public isRedrawNeeded(): boolean {
         return this.redrawNeeded;
     }
 
-    public unsetRedrawNeeded() : void {
+    public unsetRedrawNeeded(): void {
         this.redrawNeeded = false;
     }
 
@@ -181,7 +183,7 @@ export class Cpu {
     /*
      2nnn - CALL addr
      Call subroutine at nnn.
-    */ 
+    */
     private opCall(code: opCode) {
         const addr = code & 0xFFF;
         this.stack.push(this.pc);
@@ -222,12 +224,12 @@ export class Cpu {
         if (this.V[regX] == this.V[regY]) {
             this.pc += 2;
         }
-   }
+    }
 
-   /*
-    6xkk - LD Vx, byte
-    Set Vx = kk.
-   */
+    /*
+     6xkk - LD Vx, byte
+     Set Vx = kk.
+    */
     private opSet(code: opCode) {
         const register = (code & 0xF00) >> 8;
         const value = code & 0xFF;
@@ -245,7 +247,7 @@ export class Cpu {
         this.V[reg] = (this.V[reg] + val) & 0xFF;
     }
 
-    private registerOp(code: opCode, f: (regX: number, regY: number) => number) : void {
+    private registerOp(code: opCode, f: (regX: number, regY: number) => number): void {
         const regX = (code & 0x0F00) >> 8;
         const regY = (code & 0x00F0) >> 4;
         this.V[regX] = f(this.V[regX], this.V[regY])
@@ -292,7 +294,7 @@ export class Cpu {
         this.registerOp(code, (x, y) => {
             (x + y > 255) ? this.V[0xF] = 1 : this.V[0xF] = 0;
             return (x + y) & 0xFF;
-            });
+        });
     }
 
     /*
@@ -356,7 +358,7 @@ export class Cpu {
      Set I = nnn.
     */
     private opSetIndexReg(code: opCode) {
-        this.I = code & 0x0FFF;        
+        this.I = code & 0x0FFF;
     }
 
     /*
@@ -373,7 +375,7 @@ export class Cpu {
      Cxkk - RND Vx, byte
      Set Vx = random byte AND kk.
     */
-    private opRND(code: opCode){
+    private opRND(code: opCode) {
         const reg = (code & 0xF00) >> 8;
         const val = code & 0xFF;
         this.V[reg] = (Math.floor(Math.random() * 256) & 0xFF) & val;
@@ -390,7 +392,7 @@ export class Cpu {
      * (from left to right, from most to least significant bit). If any pixels on the screen were turned “off” by this,
      * the VF flag register is set to 1. Otherwise, it’s set to 0.
      */
-    private opDraw(code: opCode)  {
+    private opDraw(code: opCode) {
         const x = (this.V[(code & 0x0F00) >> 8]) % 64; // modulo screen width
         let y = (this.V[(code & 0x00F0) >> 4]) % 32; // modulo screen height
         const rowCount = code & 0xF;
@@ -428,82 +430,82 @@ export class Cpu {
         throw new Error("not implemented yet");
     }
 
-   /*
-     ExA1 - SKNP Vx
-     Skip next instruction if key with the value of Vx is not pressed.
-   */
+    /*
+      ExA1 - SKNP Vx
+      Skip next instruction if key with the value of Vx is not pressed.
+    */
     private opSKNP(code: opCode) {
         throw new Error("not implemented yet");
     }
 
-   /*
-     Fx07 - LD Vx, DT
-     Set Vx = delay timer value.
-   */
+    /*
+      Fx07 - LD Vx, DT
+      Set Vx = delay timer value.
+    */
     private opLdDelayTimer(code: opCode) {
         throw new Error("not implemented yet");
     }
 
-   /*
-     Fx0A - LD Vx, K
-     Wait for a key press, store the value of the key in Vx.
-   */
+    /*
+      Fx0A - LD Vx, K
+      Wait for a key press, store the value of the key in Vx.
+    */
     private opWaitForKey(code: opCode) {
         throw new Error("not implemented yet");
     }
 
-   /*
-     Fx15 - LD DT, Vx
-     Set delay timer = Vx.
-   */
+    /*
+      Fx15 - LD DT, Vx
+      Set delay timer = Vx.
+    */
     private opSetDelayTimer(code: opCode) {
         throw new Error("not implemented yet");
     }
 
-   /*
-     Fx18 - LD ST, Vx
-     Set sound timer = Vx.
-   */
+    /*
+      Fx18 - LD ST, Vx
+      Set sound timer = Vx.
+    */
     private opSetSoundTimer(code: opCode) {
         throw new Error("not implemented yet");
     }
 
-  /*
-     Fx1E - ADD I, Vx
-     Set I = I + Vx.
-  */
+    /*
+       Fx1E - ADD I, Vx
+       Set I = I + Vx.
+    */
     private opSetIndex(code: opCode) {
         throw new Error("not implemented yet");
     }
 
-  /*
-    Fx29 - LD F, Vx
-    Set I = location of sprite for digit Vx.
-  */  
+    /*
+      Fx29 - LD F, Vx
+      Set I = location of sprite for digit Vx.
+    */
     private opLoadChar(code: opCode) {
         throw new Error("not implemented yet");
     }
 
-  /*
-    Fx33 - LD B, Vx
-    Store BCD representation of Vx in memory locations I, I+1, and I+2.
-  */
+    /*
+      Fx33 - LD B, Vx
+      Store BCD representation of Vx in memory locations I, I+1, and I+2.
+    */
     private opLDBCD(code: opCode) {
         throw new Error("not implemented yet");
     }
 
-  /*
-    Fx55 - LD [I], Vx
-    Store registers V0 through Vx in memory starting at location I.
-  */
+    /*
+      Fx55 - LD [I], Vx
+      Store registers V0 through Vx in memory starting at location I.
+    */
     private opStoreRegisters(code: opCode) {
         throw new Error("not implemented yet");
     }
 
-  /*
-    Fx65 - LD Vx, [I]
-    Read registers V0 through Vx from memory starting at location I.
-  */
+    /*
+      Fx65 - LD Vx, [I]
+      Read registers V0 through Vx from memory starting at location I.
+    */
     private opLoadRegisters(code: opCode) {
         throw new Error("not implemented yet");
     }
