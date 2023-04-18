@@ -4,10 +4,13 @@
 
 import { Display } from "./Display";
 import { Stack } from "./Stack";
+import { Timer } from "./Timer";
 
 export type opCode = number;
 
 export class Cpu {
+  consoleDebug: boolean = false;
+
   // index register
   I: number = 0;
 
@@ -22,8 +25,8 @@ export class Cpu {
   memory: number[] = new Array(4096);
 
   // timers
-  delayTimer: number = 0;
-  soundTimer: number = 0;
+  delayTimer: Timer = new Timer();
+  soundTimer: Timer = new Timer();
 
   // is redraw needed?
   redrawNeeded: boolean = false;
@@ -38,13 +41,17 @@ export class Cpu {
     this.memory.fill(0);
     this.pc = 0x200;
     this.display = display;
+    this.delayTimer.start;
+    this.soundTimer.start;
   }
 
   // single CPU step
   public async step(): Promise<void> {
     const opcode: opCode =
       (this.memory[this.pc] << 8) | (this.memory[this.pc + 1] & 0xff);
-    console.log(opcode.toString(16));
+    if (this.consoleDebug) {
+      console.log(opcode.toString(16));
+    }
 
     // decode & execute instruction
     switch (opcode & 0xf000) {
@@ -190,6 +197,16 @@ export class Cpu {
 
   public unsetRedrawNeeded(): void {
     this.redrawNeeded = false;
+  }
+
+  public stopTimers(): void {
+    this.delayTimer.stop();
+    this.soundTimer.stop();
+  }
+
+  public startTimers(): void {
+    this.delayTimer.start();
+    this.soundTimer.start();
   }
 
   /*
@@ -483,7 +500,8 @@ export class Cpu {
       Set Vx = delay timer value.
     */
   private opLdDelayTimer(code: opCode) {
-    throw new Error("not implemented yet");
+    const reg = (code & 0xF00) >> 8;
+    this.V[reg] = this.delayTimer.get();
   }
 
   /*
@@ -499,7 +517,8 @@ export class Cpu {
       Set delay timer = Vx.
     */
   private opSetDelayTimer(code: opCode) {
-    throw new Error("not implemented yet");
+    const reg = (code & 0xF00) >> 8;
+    this.delayTimer.set(this.V[reg]);
   }
 
   /*
@@ -507,7 +526,8 @@ export class Cpu {
       Set sound timer = Vx.
     */
   private opSetSoundTimer(code: opCode) {
-    throw new Error("not implemented yet");
+    const reg = (code & 0xF00) >> 8;
+    this.soundTimer.set(this.V[reg]);
   }
 
   /*
@@ -515,7 +535,8 @@ export class Cpu {
        Set I = I + Vx.
     */
   private opSetIndex(code: opCode) {
-    throw new Error("not implemented yet");
+    const reg = (code & 0xF00) >> 8;
+    this.I += this.V[reg];
   }
 
   /*
