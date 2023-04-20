@@ -20,18 +20,61 @@ const setOpcode = (opcode: opCode) => {
 }
 
 describe("CPU", () => {
+    // SE Vx, kk
+    it("3xkk: should skip next instruction if Vx == kk", () => {
+        cpu.V[0] = 0x10;
+        setOpcode(0x3010);
+
+        cpu.step();
+        expect(cpu.pc).equal(0x204);
+    });
+
+    it("3xkk: should not skip next instruction if Vx != kk", () => {
+        cpu.V[0] = 0x11;
+        setOpcode(0x3010);
+
+        cpu.step();
+        expect(cpu.pc).equal(0x202);
+    });
+
+    // SNE 4xkk
+    it("4xkk: should skip next instruction if Vx != kk", () => {
+        cpu.V[0] = 0x10;
+        setOpcode(0x4015);
+
+        cpu.step();
+        expect(cpu.pc).equal(0x204);
+    });
+
+    // SNE 4xkk
+    it("4xkk: should not skip next instruction if Xv == kk", () => {
+        cpu.V[0] = 0x10;
+        setOpcode(0x4010);
+
+        cpu.step();
+        expect(cpu.pc).equal(0x202);
+    });
+
+    // LD Vx, byte
+    it("6xkk: should set Vx to the value of kk", () => {
+        setOpcode(0x6111);
+
+        cpu.step();
+        expect(cpu.V[1]).equal(0x11);
+    });
 
     // ADD 7xkk
-    it("should add the value to the specified register and store the result", () => {
+    it("7xkk: should add the value to the specified register and store the result", () => {
         cpu.V[0] = 0x10;
         setOpcode(0x7005);
 
         cpu.step();
         expect(cpu.V[0]).equal(0x15);
+        expect(cpu.pc).to.equal(0x202);
     });
 
     // 8xy0 -> LD Vx, Vy
-    it("should store the value of register Vy in register Vx", () => {
+    it("8yx0: should store the value of register Vy in register Vx", () => {
         cpu.V[0] = 0x10;
         cpu.V[1] = 0x20;
         setOpcode(0x8010);
@@ -41,7 +84,7 @@ describe("CPU", () => {
     });
 
     // 8xy1 -> OR Vx, Vy
-    it("should perform a bitwise OR on Vx and Vy ans store result in Vx", () => {
+    it("8xy1: should perform a bitwise OR on Vx and Vy ans store result in Vx", () => {
         cpu.V[0] = 0x40;
         cpu.V[1] = 0x80;
         setOpcode(0x8011);
@@ -51,7 +94,7 @@ describe("CPU", () => {
     });
 
     // 8xy6 - SHR Vx {, Vy}
-    it("should divide Vx by two. Vf = 0", () => {
+    it("8xy6: should divide Vx by two. Vf = 0", () => {
         cpu.V[0x0] = 0x8;
         cpu.V[0xF] = 0;
         setOpcode(0x8016);
@@ -61,7 +104,7 @@ describe("CPU", () => {
         expect(cpu.V[0xF]).equal(0);
     });
 
-    it("should divide Vx by two. Vf = 1", () => {
+    it("8xy6: should divide Vx by two. Vf = 1", () => {
         cpu.V[0x0] = 0x9;
         cpu.V[0xF] = 0;
         setOpcode(0x8016)
@@ -71,10 +114,9 @@ describe("CPU", () => {
         expect(cpu.V[0xF]).equal(1);
     });
 
-    it("should set I register to an address holding selected char", () => {
+    it("fx29: should set I register to an address holding selected char", () => {
         cpu.V[0] = 0x1;
         setOpcode(0xF029);
-        cpu.I = 0;
 
         cpu.step();
         expect(cpu.I).equal(0x55);
