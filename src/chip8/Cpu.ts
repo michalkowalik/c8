@@ -438,16 +438,9 @@ export class Cpu {
     this.V[reg] = Math.floor(Math.random() * 256) & 0xff & val;
   }
 
-  /* DXYN:
-   * This is the most involved instruction.
-   * It will draw an N pixels tall sprite from the memory location that the I index register is holding to the screen,
-   * at the horizontal X coordinate in VX and the Y coordinate in VY.
-   *
-   * one byte contains a row of 8 pixels -> each bit is a pixel, left to right from msb to lsb
-   *
-   * All the pixels that are “on” in the sprite will flip the pixels on the screen that it is drawn to
-   * (from left to right, from most to least significant bit). If any pixels on the screen were turned “off” by this,
-   * the VF flag register is set to 1. Otherwise, it’s set to 0.
+  /* 
+    Dxyn - DRW Vx, Vy, nibble
+    Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
    */
   private opDraw(code: opCode) {
     const x = this.V[(code & 0x0f00) >> 8] % 64; // modulo screen width
@@ -538,7 +531,7 @@ export class Cpu {
     const reg = (code & 0xf00) >> 8;
     this.V[0xF] = 0;
     if (this.I + this.V[reg] > 0xFFF) {
-        this.V[0xF] = 1;
+      this.V[0xF] = 1;
     }
     this.I = (this.I + this.V[reg]) & 0xFFF;
   }
@@ -557,7 +550,11 @@ export class Cpu {
       Store BCD representation of Vx in memory locations I, I+1, and I+2.
     */
   private opLDBCD(code: opCode) {
-    throw new Error("not implemented yet");
+    const value = this.V[(code & 0xF00) >> 8];
+
+    this.memory[this.I] = Math.floor(value / 100);
+    this.memory[this.I + 1] = Math.floor((value % 100) / 10);
+    this.memory[this.I + 2] = value % 10;
   }
 
   /*
@@ -565,7 +562,10 @@ export class Cpu {
       Store registers V0 through Vx in memory starting at location I.
     */
   private opStoreRegisters(code: opCode) {
-    throw new Error("not implemented yet");
+    const reg = (code & 0xF00) >> 8;
+    for (let x = 0; x <= reg; x++) {
+      this.memory[this.I + x] = this.V[x];
+    }
   }
 
   /*
@@ -573,6 +573,9 @@ export class Cpu {
       Read registers V0 through Vx from memory starting at location I.
     */
   private opLoadRegisters(code: opCode) {
-    throw new Error("not implemented yet");
+    const reg = (code & 0xF00) >> 8;
+    for (let x = 0; x <= reg; x++) {
+      this.V[x] = this.memory[this.I + x];
+    }
   }
 }

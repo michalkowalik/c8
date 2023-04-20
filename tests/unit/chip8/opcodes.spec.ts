@@ -12,12 +12,12 @@ before(() => {
 
 beforeEach(() => {
     cpu.pc = 0x200;
-})
+});
 
 const setOpcode = (opcode: opCode) => {
     cpu.memory[0x200] = (opcode & 0xFF00) >> 8;
     cpu.memory[0x201] = opcode & 0xFF;
-}
+};
 
 describe("CPU", () => {
     // SE Vx, kk
@@ -107,11 +107,31 @@ describe("CPU", () => {
     it("8xy6: should divide Vx by two. Vf = 1", () => {
         cpu.V[0x0] = 0x9;
         cpu.V[0xF] = 0;
-        setOpcode(0x8016)
+        setOpcode(0x8016);
 
         cpu.step();
         expect(cpu.V[0]).equal(0x4);
         expect(cpu.V[0xF]).equal(1);
+    });
+
+    it("8xyE: should multiply Vx by two. Vf=0", () => {
+        cpu.V[0x0] = 4;
+        cpu.V[0xF] = 0;
+        setOpcode(0x801E);
+
+        cpu.step();
+        expect(cpu.V[0]).equal(8);
+        expect(cpu.V[0xf]).equal(0);
+    });
+
+    it("8xyE: should multiply Vx by two. Vf=1", () => {
+        cpu.V[0x0] = 0xC0;
+        cpu.V[0xF] = 0;
+        setOpcode(0x801E);
+
+        cpu.step();
+        expect(cpu.V[0]).equal(0x80);
+        expect(cpu.V[0xf]).equal(1);
     });
 
     it("fx29: should set I register to an address holding selected char", () => {
@@ -121,4 +141,53 @@ describe("CPU", () => {
         cpu.step();
         expect(cpu.I).equal(0x55);
     });
+
+    it("fx33: shoud store byte in BCD format in memory - bigger than 100", () => {
+        cpu.V[0] = 123;
+        cpu.I = 0x500;
+        setOpcode(0xF033);
+
+        cpu.step();
+        expect(cpu.memory[cpu.I]).equal(1);
+        expect(cpu.memory[cpu.I + 1]).equal(2);
+        expect(cpu.memory[cpu.I + 2]).equal(3);
+    });
+
+    it("fx33: shoud store byte in BCD format in memory - smaller than 100", () => {
+        cpu.V[0] = 23;
+        cpu.I = 0x500;
+        setOpcode(0xF033);
+
+        cpu.step();
+        expect(cpu.memory[cpu.I]).equal(0);
+        expect(cpu.memory[cpu.I + 1]).equal(2);
+        expect(cpu.memory[cpu.I + 2]).equal(3);
+    });
+
+    it("fx55: should store registers V0 through Vx in memory starting at I", () => {
+        for (let x = 0; x < 16; x++) {
+            cpu.V[x] = x;
+        }
+        cpu.I = 0x500;
+        setOpcode(0xFF55);
+
+        cpu.step();
+        for (let x = 0; x < 16; x++) {
+            expect(cpu.memory[cpu.I + x]).equal(x);
+        }
+    });
+
+    it("fx65: should store registers V0 through Vx in memory starting at I", () => {
+        cpu.I = 0x500;
+        for (let x = 0; x < 16; x++) {
+            cpu.memory[cpu.I + x] = x;
+        }
+        setOpcode(0xFF55);
+
+        cpu.step();
+        for (let x = 0; x < 16; x++) {
+            expect(cpu.V[x]).equal(x);
+        }
+    });
+
 });
