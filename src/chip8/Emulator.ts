@@ -6,6 +6,8 @@ import { c8Fonts } from "./fonts";
 import { IbmRom } from "./ibm";
 
 export class Emulator {
+  private loadIBMRom = false;
+
   // CPU tick interval => hopefully a temporary solution
   private deltaTime = 1;
 
@@ -36,7 +38,9 @@ export class Emulator {
     }
 
     // load ibm logo to memory
-    this.loadIBM();
+    if (this.loadIBMRom) {
+      this.loadIBM();
+    }
   }
 
   public async run(): Promise<void> {
@@ -66,6 +70,15 @@ export class Emulator {
     if (this.cpu.isRedrawNeeded()) {
       await this.display.render();
       this.cpu.unsetRedrawNeeded();
+    }
+  }
+
+  public async loadRom(data: Int8Array): Promise<void> {
+    console.log("loading rom...");
+    let addr = 0x200;
+    for (const i of data) {
+      this.cpu.memory[addr] = i;
+      addr += 1;
     }
   }
 

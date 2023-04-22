@@ -50,7 +50,7 @@ export class Cpu {
     const opcode: opCode =
       (this.memory[this.pc] << 8) | (this.memory[this.pc + 1] & 0xff);
     if (this.consoleDebug) {
-      console.log(opcode.toString(16));
+      console.log((opcode & 0xFFFF).toString(16));
     }
 
     // decode & execute instruction
@@ -186,7 +186,7 @@ export class Cpu {
     }
 
     // increase PC -> unless the operation was jump (?)
-    if ((opcode & 0xf000) != 0x1000 && (opcode & 0xf000) != 0xb000) {
+    if ((opcode & 0xf000) != 0x1000 && (opcode & 0xf000) != 0x2000 && (opcode & 0xf000) != 0xb000) {
       this.pc += 2;
     }
   }
@@ -222,6 +222,8 @@ export class Cpu {
      Return from a subroutine.
     */
   private opRet(_code: opCode) {
+    const v = this.stack.pop();
+    console.log("pop from stack: " + v.toString(16));
     this.pc = this.stack.pop();
   }
 
@@ -240,6 +242,7 @@ export class Cpu {
     */
   private opCall(code: opCode) {
     const addr = code & 0xfff;
+    console.log("pushing to stack: " + this.pc.toString(16));
     this.stack.push(this.pc);
     this.pc = addr;
   }
@@ -415,7 +418,7 @@ export class Cpu {
      Set I = nnn.
     */
   private opSetIndexReg(code: opCode) {
-    this.I = code & 0x0fff;
+    this.I = (code & 0xfff);
   }
 
   /*
