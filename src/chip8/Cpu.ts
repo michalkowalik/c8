@@ -9,7 +9,7 @@ import { Timer } from "./Timer";
 export type opCode = number;
 
 export class Cpu {
-  consoleDebug: boolean = false;
+  consoleDebug: boolean = true;
 
   // index register
   I: number = 0;
@@ -222,8 +222,6 @@ export class Cpu {
      Return from a subroutine.
     */
   private opRet(_code: opCode) {
-    const v = this.stack.pop();
-    console.log("pop from stack: " + v.toString(16));
     this.pc = this.stack.pop();
   }
 
@@ -242,7 +240,6 @@ export class Cpu {
     */
   private opCall(code: opCode) {
     const addr = code & 0xfff;
-    console.log("pushing to stack: " + this.pc.toString(16));
     this.stack.push(this.pc);
     this.pc = addr;
   }
@@ -364,7 +361,7 @@ export class Cpu {
   private opSUB(code: opCode) {
     this.registerOp(code, (x, y) => {
       x > y ? (this.V[0xf] = 1) : (this.V[0xf] = 0);
-      return x - y;
+      return (x - y) & 0xFF;
     });
   }
 
@@ -386,7 +383,7 @@ export class Cpu {
   private opSUBN(code: opCode) {
     this.registerOp(code, (x, y) => {
       y > x ? (this.V[0xf] = 1) : (this.V[0xf] = 0);
-      return y - x;
+      return (y - x) & 0xFF;
     });
   }
 
@@ -578,7 +575,7 @@ export class Cpu {
   private opLoadRegisters(code: opCode) {
     const reg = (code & 0xF00) >> 8;
     for (let x = 0; x <= reg; x++) {
-      this.V[x] = this.memory[this.I + x];
+      this.V[x] = this.memory[this.I + x] & 0xff;
     }
   }
 }
