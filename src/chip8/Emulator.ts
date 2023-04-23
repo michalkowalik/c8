@@ -6,7 +6,7 @@ import { c8Fonts } from "./fonts";
 import { OpcodeTest } from "./optest2";
 
 export class Emulator {
-  private loadOpcodeTest = true;
+  private loadOpcodeTest = false;
 
   // CPU tick interval => hopefully a temporary solution
   private deltaTime = 1;
