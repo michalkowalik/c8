@@ -9,7 +9,7 @@ import { Timer } from "./Timer";
 export type opCode = number;
 
 export class Cpu {
-  consoleDebug: boolean = true;
+  consoleDebug: boolean = false;
 
   // index register
   I: number = 0;
@@ -303,11 +303,13 @@ export class Cpu {
 
   private registerOp(
     code: opCode,
-    f: (regX: number, regY: number) => number
+    f: (regX: number, regY: number) => [number, boolean]
   ): void {
     const regX = (code & 0x0f00) >> 8;
     const regY = (code & 0x00f0) >> 4;
-    this.V[regX] = f(this.V[regX], this.V[regY]);
+    const res: [number, boolean] = f(this.V[regX], this.V[regY]);
+    this.V[regX] = res[0];
+    this.V[0xf] = res[1] ? 1 : 0;
   }
 
   /*
@@ -316,7 +318,7 @@ export class Cpu {
      Stores the value of register Vy in register Vx.
     */
   private opLD(code: opCode) {
-    this.registerOp(code, (_x, y) => y);
+    this.registerOp(code, (_x, y) => [y, false]);
   }
 
   /*
@@ -324,7 +326,7 @@ export class Cpu {
      Set Vx = Vx OR Vy.
     */
   private opOR(code: opCode) {
-    this.registerOp(code, (x, y) => x | y);
+    this.registerOp(code, (x, y) => [x | y, false]);
   }
 
   /*
@@ -332,7 +334,7 @@ export class Cpu {
      Set Vx = Vx AND Vy.
     */
   private opAND(code: opCode) {
-    this.registerOp(code, (x, y) => x & y);
+    this.registerOp(code, (x, y) => [x & y, false]);
   }
 
   /*
@@ -340,7 +342,7 @@ export class Cpu {
      Set Vx = Vx XOR Vy.
     */
   private opXOR(code: opCode) {
-    this.registerOp(code, (x, y) => x ^ y);
+    this.registerOp(code, (x, y) => [x ^ y, false]);
   }
 
   /*
@@ -349,8 +351,7 @@ export class Cpu {
     */
   private opADD(code: opCode) {
     this.registerOp(code, (x, y) => {
-      x + y > 255 ? (this.V[0xf] = 1) : (this.V[0xf] = 0);
-      return (x + y) & 0xff;
+      return [(x + y) & 0xff, x + y > 255];
     });
   }
 
@@ -360,8 +361,7 @@ export class Cpu {
     */
   private opSUB(code: opCode) {
     this.registerOp(code, (x, y) => {
-      x > y ? (this.V[0xf] = 1) : (this.V[0xf] = 0);
-      return (x - y) & 0xFF;
+      return [(x - y) & 0xFF, x > y];
     });
   }
 
@@ -371,8 +371,7 @@ export class Cpu {
     */
   private opSHR(code: opCode) {
     this.registerOp(code, (x, _y) => {
-      (x & 1) == 1 ? (this.V[0xf] = 1) : (this.V[0xf] = 0);
-      return x >> 1;
+      return [x >> 1, (x & 1) == 1];
     });
   }
 
@@ -382,8 +381,7 @@ export class Cpu {
     */
   private opSUBN(code: opCode) {
     this.registerOp(code, (x, y) => {
-      y > x ? (this.V[0xf] = 1) : (this.V[0xf] = 0);
-      return (y - x) & 0xFF;
+      return [(y - x) & 0xFF, y > x];
     });
   }
 
@@ -393,8 +391,7 @@ export class Cpu {
     */
   private opSHL(code: opCode) {
     this.registerOp(code, (x, _y) => {
-      (x & 0x80) == 0x80 ? (this.V[0xf] = 1) : (this.V[0xf] = 0);
-      return (x << 1) & 0xff;
+      return [(x << 1) & 0xff, (x & 0x80) == 0x80];
     });
   }
 
@@ -529,10 +526,6 @@ export class Cpu {
     */
   private opSetIndex(code: opCode) {
     const reg = (code & 0xf00) >> 8;
-    this.V[0xF] = 0;
-    if (this.I + this.V[reg] > 0xFFF) {
-      this.V[0xF] = 1;
-    }
     this.I = (this.I + this.V[reg]) & 0xFFF;
   }
 
