@@ -3,9 +3,11 @@
 import { Cpu } from "./Cpu";
 import { Display } from "./Display";
 import { c8Fonts } from "./fonts";
-import { IbmRom } from "./ibm";
+import { OpcodeTest } from "./optest2";
 
 export class Emulator {
+  private loadOpcodeTest = true;
+
   // CPU tick interval => hopefully a temporary solution
   private deltaTime = 1;
 
@@ -36,7 +38,9 @@ export class Emulator {
     }
 
     // load ibm logo to memory
-    this.loadIBM();
+    if (this.loadOpcodeTest) {
+      this.loadTest();
+    }
   }
 
   public async run(): Promise<void> {
@@ -69,12 +73,24 @@ export class Emulator {
     }
   }
 
-  private loadIBM(): void {
-    // starting address of the program 
+  public async loadRom(data: Int8Array): Promise<void> {
+    console.log("loading rom...");
     let addr = 0x200;
-    for (const i of IbmRom) {
+    for (const i of data) {
       this.cpu.memory[addr] = i;
       addr += 1;
+    }
+    this.display.clear();
+  }
+
+  private loadTest(): void {
+    // starting address of the program 
+    console.log("loading opcode test..");
+    let addr = 0x200;
+    for (const i of OpcodeTest) {
+      this.cpu.memory[addr] = (i & 0xFF00) >> 8;
+      this.cpu.memory[addr + 1] = i & 0xFF;
+      addr += 2;
     }
   }
 }

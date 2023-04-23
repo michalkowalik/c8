@@ -93,6 +93,29 @@ describe("CPU", () => {
         expect(cpu.V[0]).equal(0xC0);
     });
 
+    // 8xy5 -> SUB Vx, Vy
+    it("8xy5: should substract Vy from Vx and save result in Vx. x > y", () => {
+        cpu.V[0] = 16;
+        cpu.V[1] = 8;
+        setOpcode(0x8015);
+
+        cpu.step();
+        expect(cpu.V[0]).equal(8);
+        expect(cpu.V[0xF]).equal(1);
+    });
+
+    // 8xy5 -> SUB Vx, Vy
+    it("8xy5: should substract Vy from Vx and save result in Vx. x < y", () => {
+        cpu.V[0] = 8;
+        cpu.V[1] = 16;
+        setOpcode(0x8015);
+
+        cpu.step();
+        expect(cpu.V[0]).equal(0xF8);
+        expect(cpu.V[0xF]).equal(0);
+    });
+
+
     // 8xy6 - SHR Vx {, Vy}
     it("8xy6: should divide Vx by two. Vf = 0", () => {
         cpu.V[0x0] = 0x8;
@@ -182,7 +205,7 @@ describe("CPU", () => {
         for (let x = 0; x < 16; x++) {
             cpu.memory[cpu.I + x] = x;
         }
-        setOpcode(0xFF55);
+        setOpcode(0xFF65);
 
         cpu.step();
         for (let x = 0; x < 16; x++) {

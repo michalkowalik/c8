@@ -21,7 +21,7 @@ export class Stack<NumType> {
     }
 
     this.sp -= 1;
-    return this.stack[this.sp + 1];
+    return this.stack[this.sp];
   }
 
   public getSp(): number {

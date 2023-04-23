@@ -9,7 +9,7 @@ import { Timer } from "./Timer";
 export type opCode = number;
 
 export class Cpu {
-  consoleDebug: boolean = false;
+  consoleDebug: boolean = true;
 
   // index register
   I: number = 0;
@@ -50,7 +50,7 @@ export class Cpu {
     const opcode: opCode =
       (this.memory[this.pc] << 8) | (this.memory[this.pc + 1] & 0xff);
     if (this.consoleDebug) {
-      console.log(opcode.toString(16));
+      console.log((opcode & 0xFFFF).toString(16));
     }
 
     // decode & execute instruction
@@ -186,7 +186,7 @@ export class Cpu {
     }
 
     // increase PC -> unless the operation was jump (?)
-    if ((opcode & 0xf000) != 0x1000 && (opcode & 0xf000) != 0xb000) {
+    if ((opcode & 0xf000) != 0x1000 && (opcode & 0xf000) != 0x2000 && (opcode & 0xf000) != 0xb000) {
       this.pc += 2;
     }
   }
@@ -361,7 +361,7 @@ export class Cpu {
   private opSUB(code: opCode) {
     this.registerOp(code, (x, y) => {
       x > y ? (this.V[0xf] = 1) : (this.V[0xf] = 0);
-      return x - y;
+      return (x - y) & 0xFF;
     });
   }
 
@@ -383,7 +383,7 @@ export class Cpu {
   private opSUBN(code: opCode) {
     this.registerOp(code, (x, y) => {
       y > x ? (this.V[0xf] = 1) : (this.V[0xf] = 0);
-      return y - x;
+      return (y - x) & 0xFF;
     });
   }
 
@@ -415,7 +415,7 @@ export class Cpu {
      Set I = nnn.
     */
   private opSetIndexReg(code: opCode) {
-    this.I = code & 0x0fff;
+    this.I = (code & 0xfff);
   }
 
   /*
@@ -575,7 +575,7 @@ export class Cpu {
   private opLoadRegisters(code: opCode) {
     const reg = (code & 0xF00) >> 8;
     for (let x = 0; x <= reg; x++) {
-      this.V[x] = this.memory[this.I + x];
+      this.V[x] = this.memory[this.I + x] & 0xff;
     }
   }
 }
