@@ -1,4 +1,7 @@
-# c8
+# c8 - Chip-8 emulator in Typescript 
+
+## what's Chip-8?
+[Chip-8 @ Wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
 
 ## Project setup
 ```
