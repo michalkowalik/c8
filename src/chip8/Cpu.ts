@@ -37,12 +37,16 @@ export class Cpu {
   private display: Display;
 
   constructor(display: Display) {
-    this.V.fill(0);
-    this.memory.fill(0);
-    this.pc = 0x200;
+    this.init();
     this.display = display;
     this.delayTimer.start;
     this.soundTimer.start;
+  }
+
+  public init(): void {
+    this.V.fill(0);
+    this.memory.fill(0);
+    this.pc = 0x200;
   }
 
   // single CPU step

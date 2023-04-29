@@ -24,6 +24,7 @@ export class Emulator {
   }
 
   public init(): void {
+    this.cpu.init();
     // clear the screen
     this.display.clear();
 

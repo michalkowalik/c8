@@ -25,10 +25,15 @@
                                     <v-btn color="primary" variant="outlined" @click="step">Step</v-btn>
                                 </v-col>
                                 <v-col>
-                                    <v-btn color="success" variant="outlined" @click="run">Run</v-btn>
+                                    <v-btn color="success" v-bind:variant="cpuState === 'run' ? 'elevated' : 'outlined'"
+                                        @click="run">Run</v-btn>
                                 </v-col>
                                 <v-col>
-                                    <v-btn color="error" @click="halt">Halt</v-btn>
+                                    <v-btn color="error" v-bind:variant="cpuState === 'halt' ? 'elevated' : 'outlined'"
+                                        @click="halt">Halt</v-btn>
+                                </v-col>
+                                <v-col>
+                                    <v-btn color="purple-darken-2" variant="outlined" @click="reset"> Reset</v-btn>
                                 </v-col>
                             </v-row>
                         </div>
@@ -63,17 +68,19 @@
 
 <script lang="ts">
 import { Emulator } from '@/chip8/Emulator';
-import { defineComponent } from 'vue';
-// import { md3 } from 'vuetify/blueprints';
+import { defineComponent, } from 'vue';
+
 
 export default defineComponent({
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'Chip8',
-    props: {
+
+    computed: {
     },
     data() {
         return {
             emulator: null as Emulator | null,
+            cpuState: 'halt' as string
         };
     },
     mounted() {
@@ -87,18 +94,29 @@ export default defineComponent({
             if (this.emulator) {
                 this.emulator.start();
                 this.emulator.run();
+                this.cpuState = 'run';
             }
         },
         halt() {
             console.log("Halting CPU");
             if (this.emulator) {
                 this.emulator.halt();
+                this.cpuState = 'halt';
             }
         },
         step() {
             console.log("Stepping emulator");
             if (this.emulator) {
                 this.emulator.step();
+                this.cpuState = 'halt';
+            }
+        },
+        reset() {
+            console.log("Reseting emulator");
+            if (this.emulator) {
+                this.emulator.halt();
+                this.emulator.init();
+                this.cpuState = 'halt';
             }
         },
         uploadFile(e: { target: { files: FileList; }; }) {
