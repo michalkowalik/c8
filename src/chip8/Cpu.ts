@@ -36,6 +36,10 @@ export class Cpu {
 
   private display: Display;
 
+  // is _any_ key pressed - a global flag
+  private isKeyPressed: boolean = false;
+  private pressedKey: number = 0;
+
   constructor(display: Display) {
     this.init();
     this.display = display;
@@ -211,6 +215,14 @@ export class Cpu {
   public startTimers(): void {
     this.delayTimer.start();
     this.soundTimer.start();
+  }
+
+  public setKeyState(state: boolean): void {
+    this.isKeyPressed = state;
+  }
+
+  public setPressedKey(key: number): void {
+    this.pressedKey = key;
   }
 
   /*
@@ -478,7 +490,10 @@ export class Cpu {
      Skip next instruction if key with the value of Vx is pressed.
     */
   private opSKP(code: opCode) {
-    throw new Error("not implemented yet");
+    const reg = (code & 0xf00) >> 8;
+    if (this.isKeyPressed && this.pressedKey === this.V[reg]) {
+      this.pc += 2;
+    }
   }
 
   /*
@@ -486,7 +501,10 @@ export class Cpu {
       Skip next instruction if key with the value of Vx is not pressed.
     */
   private opSKNP(code: opCode) {
-    throw new Error("not implemented yet");
+    const reg = (code & 0xf00) >> 8;
+    if (!(this.isKeyPressed && this.pressedKey === this.V[reg])) {
+      this.pc += 2;
+    }
   }
 
   /*
