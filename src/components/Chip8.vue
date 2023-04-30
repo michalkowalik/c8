@@ -84,9 +84,15 @@ export default defineComponent({
         };
     },
     mounted() {
+        document.addEventListener('keydown', this.handleKeyDown);
+        document.addEventListener('keyup', this.handleKeyUp);
         const chipCanvas = this.$refs.chipCanvas as HTMLCanvasElement;
         this.emulator = new Emulator(chipCanvas);
         this.emulator.init();
+    },
+    beforeUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+        document.removeEventListener('keyup', this.handleKeyUp);
     },
     methods: {
         run() {
@@ -128,6 +134,12 @@ export default defineComponent({
                     this.emulator.loadRom(new Int8Array(reader.result as ArrayBuffer));
                 }
             };
+        },
+        handleKeyDown(event: KeyboardEvent) {
+            this.emulator?.setKeyState(event.key, true);
+        },
+        handleKeyUp(event: KeyboardEvent) {
+            this.emulator?.setKeyState(event.key, false);
         }
     }
 });

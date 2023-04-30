@@ -4,6 +4,7 @@ import { Cpu } from "./Cpu";
 import { Display } from "./Display";
 import { c8Fonts } from "./fonts";
 import { OpcodeTest } from "./optest2";
+import { Keyboard } from "./Keyboard";
 
 export class Emulator {
   private loadOpcodeTest = false;
@@ -15,6 +16,7 @@ export class Emulator {
   private cpu: Cpu;
   private interval: ReturnType<typeof setInterval>;
   private running: boolean;
+  private keyboard: Keyboard = new Keyboard();
 
   constructor(canvas: HTMLCanvasElement) {
     this.display = new Display(canvas);
@@ -83,6 +85,20 @@ export class Emulator {
     }
     this.display.clear();
   }
+
+  public async setKeyState(key: string, state: boolean): Promise<void> {
+    const keyValue = this.keyboard.getKeyCodeForKey(key);
+    if (keyValue !== undefined) {
+      this.cpu.setKeyState(state);
+      if (state) {
+        this.cpu.setPressedKey(keyValue);
+      } else {
+        this.cpu.setPressedKey(0);
+      }
+    }
+  }
+
+
 
   private loadTest(): void {
     // starting address of the program 
