@@ -520,8 +520,13 @@ export class Cpu {
       Fx0A - LD Vx, K
       Wait for a key press, store the value of the key in Vx.
     */
-  private opWaitForKey(code: opCode) {
-    throw new Error("not implemented yet");
+  private async opWaitForKey(code: opCode) {
+    const reg = (code & 0xf00);
+
+    while (!this.isKeyPressed) {
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 10));
+    }
+    this.V[reg] = this.pressedKey;
   }
 
   /*
