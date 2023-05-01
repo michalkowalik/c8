@@ -1,7 +1,6 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Vue.js + TypeScript CHIP-8 interpreter"/>
+    <HelloWorld msg="Vue.js + TypeScript CHIP-8 interpreter" />
   </div>
 </template>
 
@@ -14,5 +13,5 @@ import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
     HelloWorld,
   },
 })
-export default class HomeView extends Vue {}
+export default class HomeView extends Vue { }
 </script>
