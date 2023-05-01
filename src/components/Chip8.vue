@@ -15,6 +15,8 @@
                         </canvas>
                     </v-card-item>
                 </v-card>
+                <br>
+                <RegisterStatus />
             </v-col>
             <v-col>
                 <v-card title="CPU STATUS" class="mx-auto">
@@ -46,35 +48,43 @@
                     </v-card-item>
                 </v-card>
                 <br>
-                <v-card title="Set Memory" class="mx-auto">
-                    <v-card-item>
-                        <v-text-field label="Address"></v-text-field>
-                        <v-text-field label="Value"></v-text-field>
-                        <v-btn color="primary">Set</v-btn>
-                    </v-card-item>
-                </v-card>
+                <v-expansion-panels variant="inset">
+                    <v-expansion-panel>
+                        <v-expansion-panel-title>
+                            <v-row no-gutters>
+                                Set Memory
+                            </v-row>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <v-card class="mx-auto">
+                                <v-card-item>
+                                    <v-text-field label="Address"></v-text-field>
+                                    <v-text-field label="Value"></v-text-field>
+                                    <v-btn color="primary">Set</v-btn>
+                                </v-card-item>
+                            </v-card>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+                </v-expansion-panels>
             </v-col>
         </v-row>
 
         <v-spacer><br></v-spacer>
-
-        <v-row>
-            <v-card title="Register status" class="mx-auto">
-
-            </v-card>
-        </v-row>
     </v-container>
 </template>
 
 <script lang="ts">
 import { Emulator } from '@/chip8/Emulator';
 import { defineComponent, } from 'vue';
-
+import RegisterStatus from './RegisterStatus.vue';
 
 export default defineComponent({
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'Chip8',
 
+    components: {
+        RegisterStatus
+    },
     computed: {
     },
     data() {

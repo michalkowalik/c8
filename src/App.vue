@@ -1,10 +1,12 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link> |
-    <router-link to="/chip8">Chip8</router-link>
-  </nav>
-  <router-view/>
+  <v-app>
+    <nav>
+      <router-link to="/">Chip8</router-link> |
+      <router-link to="/about">About Chip8</router-link>
+    </nav>
+    <router-view />
+    <v-footer class="d-flex flex-column">&copy; {{ new Date().getFullYear() }} Michał Kowalik</v-footer>
+  </v-app>
 </template>
 
 <style lang="scss">

@@ -23,6 +23,10 @@
       <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
     </ul>
+    <h3> Github</h3>
+    <ul>
+      <li><a href="https://github.com/michalkowalik/c8">https://github.com/michalkowalik/c8</a></li>
+    </ul>
   </div>
 </template>
 
@@ -57,4 +61,5 @@ li {
 
 a {
   color: #42b983;
-}</style>
+}
+</style>
