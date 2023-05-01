@@ -1,16 +1,7 @@
 export class Timer {
   private intervalId: number | undefined;
 
-  // I don't know if I need the callback at all ..
-  // private readonly callback: () => void;
-
   private counter = 0;
-
-  /*
-    constructor(callback: () => void) {
-      this.callback = callback;
-    }
-  */
 
   public start(): void {
     this.intervalId = setInterval(() => {

@@ -523,10 +523,11 @@ export class Cpu {
   private async opWaitForKey(code: opCode) {
     const reg = (code & 0xf00);
 
-    while (!this.isKeyPressed) {
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 10));
+    if (!this.isKeyPressed) {
+      this.pc -= 2; // loop until key pressed
+    } else {
+      this.V[reg] = this.pressedKey;
     }
-    this.V[reg] = this.pressedKey;
   }
 
   /*
