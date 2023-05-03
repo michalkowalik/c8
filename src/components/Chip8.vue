@@ -16,7 +16,7 @@
                     </v-card-item>
                 </v-card>
                 <br>
-                <RegisterStatus />
+                <RegisterStatus :status="cpuStatus" />
             </v-col>
             <v-col>
                 <v-card title="CPU STATUS" class="mx-auto">
@@ -75,6 +75,7 @@
 
 <script lang="ts">
 import { Emulator } from '@/chip8/Emulator';
+import { CpuStatus } from '@/types';
 import { defineComponent, } from 'vue';
 import RegisterStatus from './RegisterStatus.vue';
 
@@ -90,7 +91,8 @@ export default defineComponent({
     data() {
         return {
             emulator: null as Emulator | null,
-            cpuState: 'halt' as string
+            cpuState: 'halt' as string,
+            cpuStatus: {} as CpuStatus
         };
     },
     mounted() {
@@ -99,6 +101,7 @@ export default defineComponent({
         const chipCanvas = this.$refs.chipCanvas as HTMLCanvasElement;
         this.emulator = new Emulator(chipCanvas);
         this.emulator.init();
+        this.cpuStatus = this.emulator.getCpuStatus();
     },
     beforeUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown);

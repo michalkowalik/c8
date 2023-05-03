@@ -5,6 +5,7 @@ import { Display } from "./Display";
 import { c8Fonts } from "./fonts";
 import { OpcodeTest } from "./optest2";
 import { Keyboard } from "./Keyboard";
+import { CpuStatus } from "@/types";
 
 export class Emulator {
   private loadOpcodeTest = false;
@@ -98,7 +99,9 @@ export class Emulator {
     }
   }
 
-
+  public getCpuStatus(): CpuStatus {
+    return new CpuStatus(this.cpu.V, this.cpu.pc, this.cpu.I);
+  }
 
   private loadTest(): void {
     // starting address of the program 
