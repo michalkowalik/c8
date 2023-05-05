@@ -74,12 +74,16 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import type { PropType } from 'vue';
 import { CpuStatus } from '@/types';
 
 export default defineComponent({
     name: 'RegisterStatus',
     props: {
-        status: { type: CpuStatus, required: true },
+        status: {
+            type: Object as PropType<CpuStatus>,
+            required: true
+        },
     },
     methods: {
         printRegisterValue(reg: number): string {

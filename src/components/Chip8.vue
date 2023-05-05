@@ -101,7 +101,8 @@ export default defineComponent({
         const chipCanvas = this.$refs.chipCanvas as HTMLCanvasElement;
         this.emulator = new Emulator(chipCanvas);
         this.emulator.init();
-        this.cpuStatus = this.emulator.getCpuStatus();
+        //this.cpuStatus = this.emulator.getCpuStatus();
+        this.cpuStatus = new CpuStatus([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0, 0);
     },
     beforeUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown);
@@ -127,6 +128,7 @@ export default defineComponent({
             console.log("Stepping emulator");
             if (this.emulator) {
                 this.emulator.step();
+                this.cpuStatus = this.emulator.getCpuStatus();
                 this.cpuState = 'halt';
             }
         },
