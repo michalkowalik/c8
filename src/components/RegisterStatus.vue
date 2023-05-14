@@ -9,6 +9,11 @@
             <v-expansion-panel-text>
                 <v-card class="mx-auto">
                     <v-card-item>
+                        <v-switch v-model="switchStatus" hide-details inset :label="switchStatus ? 'On' : 'Off'"
+                            :color="switchStatus ? 'success' : 'primary'"
+                            v-on:click="() => this.$emit('regStatusChange', switchStatus)"></v-switch>
+                    </v-card-item>
+                    <v-card-item>
                         <v-table>
                             <thead>
                                 <th>V0</th>
@@ -61,8 +66,8 @@
                                 <th>PC</th>
                             </thead>
                             <tbody>
-                                <td>{{ "0x" + status.i.toString(16) }}</td>
-                                <td>{{ "0x" + status.pc.toString(16) }}</td>
+                                <td>{{ "0x" + status.indexRegisters[0].toString(16) }}</td>
+                                <td>{{ "0x" + status.indexRegisters[1].toString(16) }}</td>
                             </tbody>
                         </v-table>
                     </v-card-item>
@@ -79,6 +84,11 @@ import { CpuStatus } from '@/types';
 
 export default defineComponent({
     name: 'RegisterStatus',
+    data() {
+        return {
+            switchStatus: false
+        };
+    },
     props: {
         status: {
             type: Object as PropType<CpuStatus>,

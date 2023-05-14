@@ -16,7 +16,7 @@
                     </v-card-item>
                 </v-card>
                 <br>
-                <RegisterStatus :status="cpuStatus" />
+                <RegisterStatus :status="cpuStatus" v-on:regStatusChange="handleRegStatusChange" />
             </v-col>
             <v-col>
                 <v-card title="CPU STATUS" class="mx-auto">
@@ -58,9 +58,13 @@
                         <v-expansion-panel-text>
                             <v-card class="mx-auto">
                                 <v-card-item>
-                                    <v-text-field label="Address"></v-text-field>
-                                    <v-text-field label="Value"></v-text-field>
-                                    <v-btn color="primary">Set</v-btn>
+                                    <v-form fast-fail @submit.prevent v-model="isFormValid">
+                                        <v-text-field v-model="setMemoryAddress" label="Address"
+                                            :rules="addressRules"></v-text-field>
+                                        <v-text-field v-model="setMemoryValue" label="Value"
+                                            :rules="valueRules"></v-text-field>
+                                        <v-btn color="primary" @click="setMemory" :disabled="!isFormValid">Set</v-btn>
+                                    </v-form>
                                 </v-card-item>
                             </v-card>
                         </v-expansion-panel-text>
@@ -92,7 +96,31 @@ export default defineComponent({
         return {
             emulator: null as Emulator | null,
             cpuState: 'halt' as string,
-            cpuStatus: {} as CpuStatus
+            cpuStatus: {} as CpuStatus,
+            setMemoryAddress: '' as string,
+            setMemoryValue: '' as string,
+            isFormValid: true as boolean,
+            addressRules: [
+                (value: string) => {
+                    if (typeof (parseInt(value)) === 'number') {
+                        if (parseInt(value) >= 0 && parseInt(value) <= 0xFFF) {
+                            return true;
+                        }
+                    }
+                    return 'Address must be an integer value between 0x0 and 0xFFF';
+                },
+            ],
+            valueRules: [
+                (value: string) => {
+                    if (typeof (parseInt(value)) === 'number') {
+                        if (parseInt(value) >= 0 && parseInt(value) <= 0xFF) {
+                            return true;
+                        }
+                    }
+                    return 'Value must be an integer value between 0x0 and 0xFF';
+                },
+
+            ]
         };
     },
     mounted() {
@@ -101,8 +129,7 @@ export default defineComponent({
         const chipCanvas = this.$refs.chipCanvas as HTMLCanvasElement;
         this.emulator = new Emulator(chipCanvas);
         this.emulator.init();
-        //this.cpuStatus = this.emulator.getCpuStatus();
-        this.cpuStatus = new CpuStatus([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0, 0);
+        this.cpuStatus = new CpuStatus([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0]);
     },
     beforeUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown);
@@ -128,7 +155,6 @@ export default defineComponent({
             console.log("Stepping emulator");
             if (this.emulator) {
                 this.emulator.step();
-                this.cpuStatus = this.emulator.getCpuStatus();
                 this.cpuState = 'halt';
             }
         },
@@ -155,7 +181,22 @@ export default defineComponent({
         },
         handleKeyUp(event: KeyboardEvent) {
             this.emulator?.setKeyState(event.key, false);
-        }
+        },
+        handleRegStatusChange(s: boolean) {
+            console.log("event received");
+            if (this.emulator) {
+                if (!s) {
+                    this.cpuStatus = this.emulator.getCpuStatus();
+                } else {
+                    this.cpuStatus = new CpuStatus([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0]);
+                }
+            }
+        },
+        setMemory() {
+            if (this.emulator) {
+                this.emulator.setMemoryByte(parseInt(this.setMemoryAddress), parseInt(this.setMemoryValue));
+            }
+        },
     }
 });
 </script>

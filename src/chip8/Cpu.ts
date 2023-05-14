@@ -51,6 +51,7 @@ export class Cpu {
     this.V.fill(0);
     this.memory.fill(0);
     this.pc = 0x200;
+    this.I = 0;
   }
 
   // single CPU step

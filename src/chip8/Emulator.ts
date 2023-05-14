@@ -18,6 +18,7 @@ export class Emulator {
   private interval: ReturnType<typeof setInterval>;
   private running: boolean;
   private keyboard: Keyboard = new Keyboard();
+  private indexRegisters: number[] = new Array(2);
 
   constructor(canvas: HTMLCanvasElement) {
     this.display = new Display(canvas);
@@ -40,6 +41,9 @@ export class Emulator {
         addrPointer += 1;
       }
     }
+
+    this.indexRegisters[0] = this.cpu.I;
+    this.indexRegisters[1] = this.cpu.pc;
 
     // load ibm logo to memory
     if (this.loadOpcodeTest) {
@@ -75,6 +79,8 @@ export class Emulator {
       await this.display.render();
       this.cpu.unsetRedrawNeeded();
     }
+    this.indexRegisters[0] = this.cpu.I;
+    this.indexRegisters[1] = this.cpu.pc;
   }
 
   public async loadRom(data: Int8Array): Promise<void> {
@@ -100,7 +106,18 @@ export class Emulator {
   }
 
   public getCpuStatus(): CpuStatus {
-    return new CpuStatus(this.cpu.V, this.cpu.pc, this.cpu.I);
+    return new CpuStatus(this.cpu.V, this.indexRegisters);
+  }
+
+  public setMemoryByte(address: number, value: number): void {
+    if (address < 0 || address > 0xFFF) {
+      throw new Error('Illegal address');
+    }
+    if (value < 0 || value > 0xFF) {
+      throw new Error('Value does not fit single byte');
+    }
+
+    this.cpu.memory[address] = value;
   }
 
   private loadTest(): void {

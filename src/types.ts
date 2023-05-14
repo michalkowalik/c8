@@ -1,12 +1,10 @@
 export class CpuStatus {
 
-    constructor(registers: number[], pc: number, i: number) {
+    constructor(registers: number[], indexRegisters: number[]) {
         this.registers = registers;
-        this.pc = pc;
-        this.i = i;
+        this.indexRegisters = indexRegisters;
     }
 
     registers: number[];
-    pc: number;
-    i: number;
+    indexRegisters: number[];
 }
