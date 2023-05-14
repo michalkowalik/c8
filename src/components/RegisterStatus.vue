@@ -9,6 +9,11 @@
             <v-expansion-panel-text>
                 <v-card class="mx-auto">
                     <v-card-item>
+                        <v-switch v-model="switchStatus" hide-details inset :label="switchStatus ? 'On' : 'Off'"
+                            :color="switchStatus ? 'success' : 'primary'"
+                            v-on:click="() => this.$emit('regStatusChange', switchStatus)"></v-switch>
+                    </v-card-item>
+                    <v-card-item>
                         <v-table>
                             <thead>
                                 <th>V0</th>
@@ -21,14 +26,14 @@
                                 <th>V7</th>
                             </thead>
                             <tbody>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
+                                <td>{{ printRegisterValue(0) }}</td>
+                                <td>{{ printRegisterValue(1) }}</td>
+                                <td>{{ printRegisterValue(2) }}</td>
+                                <td>{{ printRegisterValue(3) }}</td>
+                                <td>{{ printRegisterValue(4) }}</td>
+                                <td>{{ printRegisterValue(5) }}</td>
+                                <td>{{ printRegisterValue(6) }}</td>
+                                <td>{{ printRegisterValue(7) }}</td>
                             </tbody>
                         </v-table>
                         <br>
@@ -44,14 +49,14 @@
                                 <th>VF</th>
                             </thead>
                             <tbody>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
-                                <td>--</td>
+                                <td>{{ printRegisterValue(8) }}</td>
+                                <td>{{ printRegisterValue(9) }}</td>
+                                <td>{{ printRegisterValue(10) }}</td>
+                                <td>{{ printRegisterValue(11) }}</td>
+                                <td>{{ printRegisterValue(12) }}</td>
+                                <td>{{ printRegisterValue(13) }}</td>
+                                <td>{{ printRegisterValue(14) }}</td>
+                                <td>{{ printRegisterValue(15) }}</td>
                             </tbody>
                         </v-table>
                         <br>
@@ -61,8 +66,8 @@
                                 <th>PC</th>
                             </thead>
                             <tbody>
-                                <td>--</td>
-                                <td>--</td>
+                                <td>{{ "0x" + status.indexRegisters[0].toString(16) }}</td>
+                                <td>{{ "0x" + status.indexRegisters[1].toString(16) }}</td>
                             </tbody>
                         </v-table>
                     </v-card-item>
@@ -74,11 +79,27 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-
+import type { PropType } from 'vue';
+import { CpuStatus } from '@/types';
 
 export default defineComponent({
     name: 'RegisterStatus',
-
+    data() {
+        return {
+            switchStatus: false
+        };
+    },
+    props: {
+        status: {
+            type: Object as PropType<CpuStatus>,
+            required: true
+        },
+    },
+    methods: {
+        printRegisterValue(reg: number): string {
+            return "0x" + this.status.registers[reg].toString(16);
+        }
+    }
 });
 
 </script>
