@@ -183,7 +183,6 @@ export default defineComponent({
             this.emulator?.setKeyState(event.key, false);
         },
         handleRegStatusChange(s: boolean) {
-            console.log("event received");
             if (this.emulator) {
                 if (!s) {
                     this.cpuStatus = this.emulator.getCpuStatus();
