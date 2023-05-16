@@ -5,6 +5,7 @@
 import { Display } from "./Display";
 import { Stack } from "./Stack";
 import { Timer } from "./Timer";
+import { Sound } from "./Sound";
 
 export type opCode = number;
 
@@ -24,9 +25,12 @@ export class Cpu {
   // we're using only the lowest 8 bits of every number.
   memory: number[] = new Array(4096);
 
+  // sound generation
+  sound: Sound = new Sound();
+
   // timers
-  delayTimer: Timer = new Timer();
-  soundTimer: Timer = new Timer();
+  delayTimer: Timer = new Timer(() => undefined);
+  soundTimer: Timer = new Timer(() => this.sound.shutup());
 
   // is redraw needed?
   redrawNeeded: boolean = false;
@@ -43,8 +47,8 @@ export class Cpu {
   constructor(display: Display) {
     this.init();
     this.display = display;
-    this.delayTimer.start;
-    this.soundTimer.start;
+    this.delayTimer.start();
+    this.soundTimer.start();
   }
 
   public init(): void {
@@ -214,6 +218,7 @@ export class Cpu {
   }
 
   public startTimers(): void {
+    this.sound.create();
     this.delayTimer.start();
     this.soundTimer.start();
   }
@@ -546,6 +551,9 @@ export class Cpu {
     */
   private opSetSoundTimer(code: opCode) {
     const reg = (code & 0xf00) >> 8;
+    if (this.V[reg] > 0) {
+      this.sound.shout();
+    }
     this.soundTimer.set(this.V[reg]);
   }
 
