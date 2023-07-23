@@ -66,8 +66,8 @@
                                 <th>PC</th>
                             </thead>
                             <tbody>
-                                <td>{{ "0x" + status.indexRegisters[0].toString(16) }}</td>
-                                <td>{{ "0x" + status.indexRegisters[1].toString(16) }}</td>
+                                <td>{{ "0x" + status.indexRegisters[0].toString(16).padStart(3, '0') }}</td>
+                                <td>{{ "0x" + status.indexRegisters[1].toString(16).padStart(3, '0') }}</td>
                             </tbody>
                         </v-table>
                     </v-card-item>
@@ -97,7 +97,7 @@ export default defineComponent({
     },
     methods: {
         printRegisterValue(reg: number): string {
-            return "0x" + this.status.registers[reg].toString(16);
+            return "0x" + this.status.registers[reg].toString(16).padStart(2, '0');
         }
     }
 });
