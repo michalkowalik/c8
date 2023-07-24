@@ -8,6 +8,10 @@ export class Display {
   private screenData: Uint8Array;
   private canvasContext: CanvasRenderingContext2D;
 
+  // off-screen canvas to draw on it
+  private offScreenCanvas: OffscreenCanvas;
+  private offScreenCanvasContext: OffscreenCanvasRenderingContext2D;
+
   constructor(
     canvas: HTMLCanvasElement,
     width = 64,
@@ -18,6 +22,14 @@ export class Display {
     this.height = height;
     this.pixelSize = pixelSize;
     this.screenData = new Uint8Array(this.width * this.height);
+
+    this.offScreenCanvas = new OffscreenCanvas(width * pixelSize, height * pixelSize);
+    const offScreenCanvasContext = this.offScreenCanvas.getContext("2d");
+    if (!offScreenCanvasContext || !(offScreenCanvasContext instanceof OffscreenCanvasRenderingContext2D)) {
+      throw new Error("Failed to get 2d context for the offScreen Canvas");
+    }
+    this.offScreenCanvasContext = offScreenCanvasContext;
+
     const canvasContext = canvas.getContext("2d");
     if (!canvasContext || !(canvasContext instanceof CanvasRenderingContext2D)) {
       throw new Error("Failed to get 2D context!");
@@ -49,19 +61,19 @@ export class Display {
 
   // render is the funny part
   public async render(): Promise<void> {
-    this.canvasContext.fillStyle = "black";
-    this.canvasContext.fillRect(
+    this.offScreenCanvasContext.fillStyle = "black";
+    this.offScreenCanvasContext.fillRect(
       0,
       0,
-      this.canvasContext.canvas.width,
-      this.canvasContext.canvas.height
+      this.offScreenCanvasContext.canvas.width,
+      this.offScreenCanvasContext.canvas.height
     );
 
-    this.canvasContext.fillStyle = "white";
+    this.offScreenCanvasContext.fillStyle = "white";
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         if (this.screenData[y * this.width + x] === 1) {
-          this.canvasContext.fillRect(
+          this.offScreenCanvasContext.fillRect(
             x * this.pixelSize,
             y * this.pixelSize,
             this.pixelSize,
@@ -70,5 +82,8 @@ export class Display {
         }
       }
     }
+
+    // what will happen here??
+    this.canvasContext.drawImage(this.offScreenCanvas, 0, 0);
   }
 }
