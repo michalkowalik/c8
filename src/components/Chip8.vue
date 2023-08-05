@@ -23,7 +23,7 @@ body {
             <v-col>
                 <v-card class="mx-auto">
                     <v-card-item>
-                        <canvas ref="chipCanvas" width="512" height="256" style="border:1px solid #000000;">
+                        <canvas ref="chipCanvas" width="512" height="256" style="border:1px solid #000000;" id="canvas">
                         </canvas>
                     </v-card-item>
                 </v-card>

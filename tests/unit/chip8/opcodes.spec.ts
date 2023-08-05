@@ -212,5 +212,4 @@ describe("CPU", () => {
             expect(cpu.V[x]).equal(x);
         }
     });
-
 });
