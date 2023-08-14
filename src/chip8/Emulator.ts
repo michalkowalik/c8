@@ -12,7 +12,6 @@ export class Emulator {
 
   // CPU tick interval => hopefully a temporary solution
   private deltaTime = 1;
-
   private display: Display;
   private cpu: Cpu;
   private interval: ReturnType<typeof setInterval>;
@@ -20,19 +19,11 @@ export class Emulator {
   private keyboard: Keyboard = new Keyboard();
   private indexRegisters: number[] = new Array(2);
 
-  private worker: Worker;
-
   constructor(canvas: HTMLCanvasElement) {
     this.display = new Display(canvas);
     this.cpu = new Cpu(this.display);
     this.interval = 0;
     this.running = false;
-    this.worker = new Worker(new URL('../workers/OffScreenRendererWorker', import.meta.url), {type: 'module'});
-
-    // listen to the events from the worker
-    this.worker.addEventListener('message', message => {
-      console.log("Worker says: " + message.data);
-    })
   }
 
   public init(): void {
@@ -84,7 +75,6 @@ export class Emulator {
   public async step(): Promise<void> {
     await this.cpu.step();
     if (this.cpu.isRedrawNeeded()) {
-      this.worker.postMessage('render required');
       await this.display.render();
       this.cpu.unsetRedrawNeeded();
     }
