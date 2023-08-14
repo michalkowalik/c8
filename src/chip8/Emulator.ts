@@ -12,7 +12,6 @@ export class Emulator {
 
   // CPU tick interval => hopefully a temporary solution
   private deltaTime = 1;
-
   private display: Display;
   private cpu: Cpu;
   private interval: ReturnType<typeof setInterval>;

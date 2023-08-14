@@ -1,8 +1,20 @@
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Nova+Mono");
+
+body {
+    font-family: "Nova Mono";
+}
+
+.monotype {
+    font-family: "Nova Mono";
+    font-size: 1.25em;
+}
+</style>
 <template>
     <v-container>
         <v-row justify="center">
-            <div class="chip-8">
-                <h1>CHIP-8</h1>
+            <div class="chip-8 monotype">
+                <h1>TSCHIP-8</h1>
                 <p>Here goes nothing</p>
             </div>
         </v-row>
@@ -11,15 +23,15 @@
             <v-col>
                 <v-card class="mx-auto">
                     <v-card-item>
-                        <canvas ref="chipCanvas" width="512" height="256" style="border:1px solid #000000;">
+                        <canvas ref="chipCanvas" width="512" height="256" style="border:1px solid #000000;" id="canvas">
                         </canvas>
                     </v-card-item>
                 </v-card>
                 <br>
-                <RegisterStatus :status="cpuStatus" v-on:regStatusChange="handleRegStatusChange" />
+                <RegisterStatus :status="cpuStatus" v-on:regStatusChange="handleRegStatusChange" class="monotype" />
             </v-col>
             <v-col>
-                <v-card title="CPU STATUS" class="mx-auto">
+                <v-card title="CPU STATUS" class="mx-auto monotype">
                     <v-card-item>
                         <div>
                             <v-row>
@@ -42,21 +54,21 @@
                     </v-card-item>
                 </v-card>
                 <br>
-                <v-card title="Load ROM from file" class="mx-auto">
+                <v-card title="Load ROM from file" class="mx-auto monotype">
                     <v-card-item>
                         <v-file-input label="ROM File" @change="uploadFile"></v-file-input>
                     </v-card-item>
                 </v-card>
                 <br>
                 <v-expansion-panels variant="inset">
-                    <v-expansion-panel>
+                    <v-expansion-panel class="monotype">
                         <v-expansion-panel-title>
                             <v-row no-gutters>
                                 Set Memory
                             </v-row>
                         </v-expansion-panel-title>
                         <v-expansion-panel-text>
-                            <v-card class="mx-auto">
+                            <v-card class="mx-auto monotype">
                                 <v-card-item>
                                     <v-form fast-fail @submit.prevent v-model="isFormValid">
                                         <v-text-field v-model="setMemoryAddress" label="Address"
