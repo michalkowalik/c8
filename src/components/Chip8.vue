@@ -3,18 +3,22 @@
 
 body {
     font-family: "Nova Mono";
+    background-color: black;
 }
 
 .monotype {
     font-family: "Nova Mono";
     font-size: 1.25em;
+
+
 }
 </style>
 <template>
     <v-container>
         <v-row justify="center">
-            <div class="chip-8 monotype">
-                <h1>TSCHIP-8</h1>
+            <div style="color: #1fc742" class="monotype">
+                <!--<h1>TSCHIP-8</h1>-->
+              <img src="@/assets/pixel-text.png">
                 <p>Here goes nothing</p>
             </div>
         </v-row>
