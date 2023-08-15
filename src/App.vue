@@ -5,7 +5,8 @@
       <router-link to="/about">About Chip8</router-link>
     </nav>
     <router-view />
-    <v-footer class="d-flex flex-column">&copy; {{ new Date().getFullYear() }} Michał Kowalik</v-footer>
+    <v-footer style="background-color: black; color: #42b983" class="v-footer d-flex flex-column">
+      &copy; {{ new Date().getFullYear() }} Michał Kowalik</v-footer>
   </v-app>
 </template>
 
